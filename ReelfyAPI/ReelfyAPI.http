@@ -1,0 +1,6 @@
+@ReelfyAPI_HostAddress = http://localhost:5036
+
+GET {{ReelfyAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
