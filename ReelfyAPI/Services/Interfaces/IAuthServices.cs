@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ReelfyAPI.Models;
-using ReelfyAPI.Models.DTO;
+﻿using ReelfyAPI.Models.DTO;
 
 namespace ReelfyAPI.Services.Interfaces
 {

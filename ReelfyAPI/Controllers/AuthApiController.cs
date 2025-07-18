@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
 using ReelfyAPI.Models;
 using ReelfyAPI.Models.DTO;
 using ReelfyAPI.Services.Interfaces;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace ReelfyAPI.Controllers
 {
@@ -11,81 +11,55 @@ namespace ReelfyAPI.Controllers
     public class AuthApiController : ControllerBase
     {
         private readonly IAuthServices _authServices;
-        private readonly IUrlHelper _urlHelper;
-        
-        public AuthApiController(IAuthServices authServices, IUrlHelper urlHelper)
+
+        public AuthApiController(IAuthServices authServices)
         {
-            _urlHelper = urlHelper;
             _authServices = authServices;
         }
 
-        [HttpGet]
-        [Route("GetAllUsers")]
+        [HttpGet("getallusers", Name = "GetAllUsers")]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _authServices.GetAllUsers();
-            if (users != null && users.Any())
+            var updatedUsers = new List<UserResponseDTO>();
+
+            foreach (var user in users)
             {
-                foreach (var user in users)
-                {
+                var userLinks = new List<LinkDTO>{
 
-                    user.Links.Add(
-                        new LinkDTO
-                        (_urlHelper.Link("GetUserById", new { id = user.Id }),
-                            "self",
-                            "GET",
-                            "Detalhes do usuário",
-                            "application/json"));
-                    
-                    user.Links.Add(
-                        new LinkDTO
-                        (
-                            _urlHelper.Link("UpdateUser", new { id = user.Id }),
-                            "update",
-                            "PUT",
-                            "Atualizar senha do usuário"
-                        )
-                    );
+                    new LinkDTO(
+                        Href: Url.Link("GetUserById", new { id = user.Id }),
+                        Rel: "self",
+                        Method: "GET",
+                        Title: "Obter usuário por ID",
+                        Type: "application/json"
+                    ),
 
-                    user.Links.Add(
-                        new LinkDTO
-                        (
-                            _urlHelper.Link("DeleteUser", new { id = user.Id }),
-                            "delete",
-                            "DELETE",
-                            "Deletar usuário"
-                        )
-                    );
+                    new LinkDTO(
+                        Href: Url.Link("Register", null),
+                        Rel: "register",
+                        Method: "POST",
+                        Title: "Registrar novo usuário",
+                        Type: "application/json"
+                    ),
 
-                    user.Links.Add(
-                        new LinkDTO
-                        (
-                            _urlHelper.Link("Login", new { email = user.Email }),
-                            "login",
-                            "POST",
-                            "Fazer login"
-                        )
-                    );
+                    new LinkDTO(
+                        Href: Url.Link("Login", null),
+                        Rel: "login",
+                        Method: "POST",
+                        Title: "Fazer login",
+                        Type: "application/json"
+                    )
+                };
 
-                    user.Links.Add(
-                        new LinkDTO
-                        (
-                            _urlHelper.Link("Register", new { email = user.Email }),
-                            "register",
-                            "POST",
-                            "Registrar usuário"
-                        )
-                    );
-                }
-
-                return Ok(users);
+                var updatedUser = user with { Links = userLinks };
+                updatedUsers.Add(updatedUser);
             }
 
-            return NotFound("Nenhum usuário encontrado!");
+            return Ok(updatedUsers);
         }
 
-        [HttpGet]
-        [Route("GetUserById/{id:int}")]
+        [HttpGet("{id}", Name = "GetUserById")]
         public async Task<IActionResult> GetUserById(int id)
         {
             var user = await _authServices.GetUserById(id);
@@ -96,51 +70,93 @@ namespace ReelfyAPI.Controllers
             return Ok(user);
         }
 
-        [HttpPost]
-        [Route("Register")]
-        public async Task<IActionResult> Register (UserRegisterDTO request)
+        [HttpPost("register",Name = "Register")]
+        public async Task<IActionResult> Register(UserRegisterDTO request)
         {
-            if (await _authServices.UserExists(request.email)) {
-                throw new Exception("Usuário já existe!");
+            if (await _authServices.UserExists(request.Email))
+            {
+                return Conflict(new Response<UserRegisterDTO>(request, "Usuário já cadastrado.", 0));
             }
-            
-            var userToCreate = new UserRegisterDTO(request.email,request.password,request.age,request.phoneNumber)
+
+            var userToCreate = new UserRegisterDTO(request.Email,request.Name, request.Password, request.Age, request.PhoneNumber);
 
             var createdUser = await _authServices.Register(userToCreate);
-            return Ok(createdUser);
+            var token = _authServices.CreateToken(createdUser);
+
+            var response = new
+            {
+                data = createdUser,
+                token = token,
+                links = new List<LinkDTO>
+                {
+                    new LinkDTO(Url.Link("GetUserById", new { id = createdUser.Id }), "self", "GET", "Detalhes do usuário", "application/json"),
+                    new LinkDTO(Url.Link("UpdateUser", new { id = createdUser.Id }), "update", "PUT", "Atualizar senha do usuário"),
+                    new LinkDTO(Url.Link("DeleteUser", new { id = createdUser.Id }), "delete", "DELETE", "Deletar usuário"),
+                    new LinkDTO(Url.Link("Login", new { email = createdUser.Email }), "login", "POST", "Fazer login")
+                }
+            };
+            return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, response);
+
         }
 
-        [HttpPost]
-        [Route("Login")]
+        [HttpPost("login",Name ="Login")]
         public async Task<IActionResult> Login(UserLoginDTO request)
         {
 
-                var user = await _authServices.Login(request);
-                if (user == null)
-                {
-                    return Unauthorized("Usuário ou senha inválidos!");
-                }
+            var user = await _authServices.Login(request);
+            if (user == null)
+            {
+                return Unauthorized("Usuário ou senha inválidos!");
+            }
 
             var token = _authServices.CreateToken(user);
 
-            return Ok(new
+            if (token  == null) {
+                return Unauthorized(new Response<UserResponseDTO>(user,"Sem autorização. Seu token não foi salvo corretamente.",401));
+            }
+
+            var response = new
             {
-                User = user,
-                Token = token
-            });
+                data = user,
+                token = token,
+                links = new List<LinkDTO>
+                {
+                    new LinkDTO(Url.Link("GetUserById", new { id = user.Id }), "self", "GET", "Detalhes do usuário", "application/json"),
+                    new LinkDTO(Url.Link("UpdateUser", new { id = user.Id }), "update", "PUT", "Atualizar senha do usuário"),
+                    new LinkDTO(Url.Link("DeleteUser", new { id = user.Id }), "delete", "DELETE", "Deletar usuário")
+                }
+            };
+            return Ok(response);
 
         }
 
-        [HttpPut]
-        [Route("UpdatePassword")]
-        public async Task <IActionResult> UpdatePassword(UpdatePasswordDTO request)
+        [HttpDelete("DeleteUser/{id:int}", Name = "DeleteUser")]
+        public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = await _authServices.GetUserByEmail(request.Email);
+            if (id <= 0)
+            {
+                return BadRequest("Id inválido!");
+            }
 
-            var updatedUser = await _authServices.UpdatePassword(user, request.NewPassword);
-            return Ok(updatedUser);
+            var user = await _authServices.GetUserById(id);
+            if (user == null)
+            {
+                return NotFound("Usuário não encontrado!");
+            }
+
+            var response = new
+            {
+                data = user,
+                links = new List<LinkDTO>
+                {
+                    new LinkDTO(Url.Link("GetUserById", new { id = user.Id }), "self", "GET", "Detalhes do usuário", "application/json"),
+                    new LinkDTO(Url.Link("UpdateUser", new { id = user.Id }), "update", "PUT", "Atualizar usuário"),
+                    new LinkDTO(Url.Link("DeleteUser", new { id = user.Id }), "delete", "DELETE", "Deletar usuário")
+
+                }
+            };
+            await _authServices.DeleteUser(id);
+            return Ok(response);
         }
-
     }
 }
-

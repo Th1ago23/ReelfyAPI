@@ -3,19 +3,17 @@ using ReelfyAPI.Services.Interfaces;
 using ReelfyAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using AutoMapper;
 using ReelfyAPI.Models.DTO;
-using Azure.Core;
 namespace ReelfyAPI.Services
 {
     public class AuthServices : IAuthServices
     {
         private readonly DataContext _context;
         private readonly IConfiguration _configuration;
-        private readonly IMapper _mapper;
-        
+        private readonly IUserMapper _mapper;
 
-        public AuthServices(DataContext context, IConfiguration configuration, IMapper mapper)
+
+        public AuthServices(DataContext context, IConfiguration configuration, IUserMapper mapper)
         {
             _context = context;
             _configuration = configuration;
@@ -40,15 +38,15 @@ namespace ReelfyAPI.Services
 
         public async Task<UserResponseDTO> Register(UserRegisterDTO user)
         {
-            if (await UserExists(user.email)) {
+            if (await UserExists(user.Email)) {
 
                 throw new InvalidOperationException("Email já cadastrado.");
             
             }
 
-            var userEntity = _mapper.Map<User>(user);
+            var userEntity = _mapper.ToUser(user);
 
-            CreatePasswordHash(user.password, out byte[] passwordHash, out byte[] passwordSalt);
+            CreatePasswordHash(user.Password, out byte[] passwordHash, out byte[] passwordSalt);
             userEntity.PasswordHash = passwordHash;
             userEntity.PasswordSalt = passwordSalt;
 
@@ -59,7 +57,7 @@ namespace ReelfyAPI.Services
             await _context
                 .SaveChangesAsync();
 
-            return _mapper.Map<UserResponseDTO>(userEntity);
+            return _mapper.ToUserResponseDTO(userEntity);
         }
 
         public async Task<UserResponseDTO> GetUserById(int id)
@@ -70,7 +68,7 @@ namespace ReelfyAPI.Services
                 return null;
             }
 
-            return _mapper.Map<UserResponseDTO>(userEntity);
+            return _mapper.ToUserResponseDTO(userEntity);
 
         }
 
@@ -83,13 +81,13 @@ namespace ReelfyAPI.Services
                 return null;
             }
             
-            return _mapper.Map<UserResponseDTO>(userEntity);
+            return _mapper.ToUserResponseDTO(userEntity);
         }
 
         public async Task<IEnumerable<UserResponseDTO>> GetAllUsers()
         {
-            return _mapper.Map<IEnumerable<UserResponseDTO>>(
-                await _context.Users.ToListAsync());
+            var connection = _context.Users.ToListAsync();
+            return _mapper.ToUserResponseDTOList(await connection);
         }
 
         private bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
@@ -108,7 +106,7 @@ namespace ReelfyAPI.Services
             if (user == null || !VerifyPasswordHash(userDTO.Password, user.PasswordHash, user.PasswordSalt))
                 return null;
 
-            return _mapper.Map<UserResponseDTO>(user);
+            return _mapper.ToUserResponseDTO(user);
         }
 
         public string CreateToken(UserResponseDTO user)
@@ -119,7 +117,7 @@ namespace ReelfyAPI.Services
                new Claim(ClaimTypes.Email, user.Email)
            };
 
-            var tokenKey = _configuration["TokenKey"];
+            var tokenKey = _configuration.GetSection("AppSettings:Token").Value;
             if (string.IsNullOrEmpty(tokenKey))
             {
                 throw new ArgumentNullException(nameof(tokenKey), "TokenKey não pode ser nulo ou vazio.");
@@ -164,9 +162,9 @@ namespace ReelfyAPI.Services
             } else if ( VerifyPasswordHash(updateDTO.CurrentPassword, user.PasswordHash, user.PasswordSalt) == false)
             {
                 throw new UnauthorizedAccessException("Senha atual inválida.");
-            } else if (string.IsNullOrEmpty(updateDTO.CurrentPassword) || string.IsNullOrEmpty(request.NewPassword))
+            } else if (string.IsNullOrEmpty(updateDTO.CurrentPassword) || string.IsNullOrEmpty(updateDTO.NewPassword))
             {
-                return BadRequest("Senha atual e nova senha são obrigatórias.");
+                return null;
             }
 
 
@@ -180,7 +178,7 @@ namespace ReelfyAPI.Services
             user.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<UserResponseDTO>(user);
+            return _mapper.ToUserResponseDTO(user);
         }
 
         public async Task<bool> DeleteUser(int id)
