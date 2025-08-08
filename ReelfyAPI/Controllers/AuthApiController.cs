@@ -98,6 +98,8 @@ namespace ReelfyAPI.Controllers
             return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, response);
 
         }
+        [HttpGet("/health")]
+        public IActionResult HealthCheck() => Ok("API tá viva!");
 
         [HttpPost("login",Name ="Login")]
         public async Task<IActionResult> Login(UserLoginDTO request)
