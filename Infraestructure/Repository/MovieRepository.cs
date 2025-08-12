@@ -65,8 +65,14 @@ namespace Infraestructure.Repository
                 return Enumerable.Empty<FavoriteMovie>();
             }
 
-            return movies;
-               
+            return movies;               
+        }
+
+        public async Task<FavoriteMovie> FindByName (string title)
+        {
+            var movie = await _dataContext.Movies.FirstOrDefaultAsync(m => m.Title == title);
+
+            return movie;
         }
     }
 }
