@@ -1,96 +1,76 @@
 ﻿using ReelfyAPI.Data;
-using ReelfyAPI.Services.Interfaces;
 using ReelfyAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using ReelfyAPI.Models.DTO;
+using Microsoft.Extensions.Configuration;
+using Application.Utils;
+using Infraestructure.Repository;
+using Domain.Interface.Services.User;
 namespace ReelfyAPI.Services
 {
     public class AuthServices : IAuthServices
     {
-        private readonly DataContext _context;
+        private readonly IUserRepository _context;
         private readonly IConfiguration _configuration;
         private readonly IUserMapper _mapper;
+        private readonly JwtFunctions _jwtFunctions;
 
 
-        public AuthServices(DataContext context, IConfiguration configuration, IUserMapper mapper)
+        public AuthServices(IUserRepository context, IConfiguration configuration, IUserMapper mapper, JwtFunctions jwtFunctions)
         {
             _context = context;
             _configuration = configuration;
             _mapper = mapper;
-        }
-
-        public async Task<bool> UserExists(string email)
-        {
-            return await _context
-                .Users
-                .AnyAsync(u => u.Email == email);
-        }
-
-        private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
-        {
-            using (var hmac = new System.Security.Cryptography.HMACSHA512())
-            {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-            }
+            _jwtFunctions = jwtFunctions;
         }
 
         public async Task<UserResponseDTO> Register(UserRegisterDTO user)
-        {
-            if (await UserExists(user.Email)) {
-
-                throw new InvalidOperationException("Email já cadastrado.");
-            
-            }
-
+        {     
             var userEntity = _mapper.ToUser(user);
 
-            CreatePasswordHash(user.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            _jwtFunctions.CreatePasswordHash(user.Password, out byte[] passwordHash, out byte[] passwordSalt);
             userEntity.PasswordHash = passwordHash;
             userEntity.PasswordSalt = passwordSalt;
+            
+            await _context.Add(userEntity);
 
-            _context
-                .Users
-                .Add(userEntity);
-
-            await _context
-                .SaveChangesAsync();
 
             return _mapper.ToUserResponseDTO(userEntity);
         }
 
         public async Task<UserResponseDTO> GetUserById(int id)
         {
-            var userEntity = await _context.Users.FirstOrDefaultAsync(i =>  i.Id == id);
-            if (userEntity == null)
-            {
-                return null;
-            }
+            var us = await _context.GetById(id);
 
-            return _mapper.ToUserResponseDTO(userEntity);
-
+            return _mapper.ToUserResponseDTO(us);
         }
 
         public async Task<UserResponseDTO> GetUserByEmail(string email)
         {
-            var userEntity = await _context.Users.FirstOrDefaultAsync(i => i.Email == email);
-            
-            if(userEntity == null)
-            {
-                return null;
-            }
-            
+            var userEntity = await _context.GetByEmail(email);
+                        
             return _mapper.ToUserResponseDTO(userEntity);
         }
 
         public async Task<IEnumerable<UserResponseDTO>> GetAllUsers()
         {
-            var connection = _context.Users.ToListAsync();
-            return _mapper.ToUserResponseDTOList(await connection);
+            var connection = _context
+                                    .GetAll();
+            return _mapper
+                        .ToUserResponseDTOList(await connection);
         }
 
-        private bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
+        public async Task<UserResponseDTO> Login(UserLoginDTO userDTO)
+        {
+            var user = await _context.GetByEmail(userDTO.Email);
+            if (user == null || !VerifyPasswordHash(userDTO.Password, user.PasswordHash, user.PasswordSalt))
+                return null;
+
+            return _mapper.ToUserResponseDTO(user);
+        }
+
+        public bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
         {
             using (var hmac = new System.Security.Cryptography.HMACSHA512(storedSalt))
             {
@@ -98,15 +78,6 @@ namespace ReelfyAPI.Services
                     .ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
                 return computedHash.SequenceEqual(storedHash);
             }
-        }
-
-        public async Task<UserResponseDTO> Login(UserLoginDTO userDTO)
-        {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userDTO.Email);
-            if (user == null || !VerifyPasswordHash(userDTO.Password, user.PasswordHash, user.PasswordSalt))
-                return null;
-
-            return _mapper.ToUserResponseDTO(user);
         }
 
         public string CreateToken(UserResponseDTO user)
@@ -153,8 +124,7 @@ namespace ReelfyAPI.Services
         public async Task<UserResponseDTO> UpdatePassword(UpdatePasswordDTO updateDTO, string newPassword)
         {
             var user = await _context
-                .Users
-                .FirstOrDefaultAsync(u => u.Email == updateDTO.Email);
+                .GetByEmail(updateDTO.Email);
 
             if (user == null)
             {
@@ -168,27 +138,22 @@ namespace ReelfyAPI.Services
             }
 
 
-            CreatePasswordHash(newPassword, out byte[] passwordHash, out byte[] passwordSalt);
+            _jwtFunctions.CreatePasswordHash(newPassword, out byte[] passwordHash, out byte[] passwordSalt);
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
-            _context
-                .Users
-                .Update(user);
-
-            user.UpdatedAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
+            
+            await _context.Update(user);
 
             return _mapper.ToUserResponseDTO(user);
         }
 
         public async Task<bool> DeleteUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.GetById(id);
 
             if (user != null)
             {
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
+                await _context.Delete(user);
                 return true;
             }
             else
@@ -196,6 +161,11 @@ namespace ReelfyAPI.Services
                 throw new Exception("Usuário não encontrado.");
 
             }
+        }
+
+        public async Task<bool> VerifyUser (string email)
+        {          
+            return await _context.UserExists(email);
         }
     }
 }

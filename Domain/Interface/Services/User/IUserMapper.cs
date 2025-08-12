@@ -1,7 +1,7 @@
 ﻿using ReelfyAPI.Models;
 using ReelfyAPI.Models.DTO;
 
-namespace ReelfyAPI.Services.Interfaces
+namespace Domain.Interface.Services.User
 {
     public interface IUserMapper
     {

@@ -1,9 +1,10 @@
 using ReelfyAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using ReelfyAPI.Services.Interfaces;
 using ReelfyAPI.Services;
 using ReelfyAPI.Utils;
+using Infraestructure.Repository;
+using Domain.Interface.Services.User;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddScoped<IAuthServices, AuthServices>();
+builder.Services.AddScoped<UserRepository, UserRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

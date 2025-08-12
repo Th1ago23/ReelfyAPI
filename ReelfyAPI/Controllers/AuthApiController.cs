@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Domain.Interface.Services.User;
+using Microsoft.AspNetCore.Mvc;
 using ReelfyAPI.Models;
 using ReelfyAPI.Models.DTO;
-using ReelfyAPI.Services.Interfaces;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace ReelfyAPI.Controllers
@@ -73,7 +73,7 @@ namespace ReelfyAPI.Controllers
         [HttpPost("register",Name = "Register")]
         public async Task<IActionResult> Register(UserRegisterDTO request)
         {
-            if (await _authServices.UserExists(request.Email))
+            if (await _authServices.VerifyUser(request.Email))
             {
                 return Conflict(new Response<UserRegisterDTO>(request, "Usuário já cadastrado.", 0));
             }
