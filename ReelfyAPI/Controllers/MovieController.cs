@@ -1,5 +1,6 @@
 ﻿using Domain.Interface.Services.Movie;
 using Domain.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ReelfyAPI.Controllers
@@ -15,6 +16,7 @@ namespace ReelfyAPI.Controllers
             _movieService = movieService;
         }
 
+        [Authorize]
         [HttpPost("favorite", Name = ("favorite"))]
         public async Task<IActionResult> Favorite(FavoriteMovieDTO request)
         {
@@ -29,5 +31,6 @@ namespace ReelfyAPI.Controllers
             }
         }
 
+        [HttpGet]
     }
 }

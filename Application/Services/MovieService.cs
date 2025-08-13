@@ -35,6 +35,8 @@ namespace Application.Services
                 user.Movies.Add(movie);
 
                 await _context.Add(movie, user);
+
+                
                 return favoriteMovieDTO;
             }
             else

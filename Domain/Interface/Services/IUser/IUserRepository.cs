@@ -10,6 +10,8 @@ namespace Domain.Interface.Services.IUser
         Task<IEnumerable<User>> GetAll();
         Task Update(User user);
         Task Delete(User user);
+        Task<User> FindFavoriteInContext();
+        Task<User> FindFavorite(int id);
         Task<bool> UserExists(string email);
         Task<User> GetUserInContext();
     }

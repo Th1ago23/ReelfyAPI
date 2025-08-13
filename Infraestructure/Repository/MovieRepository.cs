@@ -53,6 +53,7 @@ namespace Infraestructure.Repository
         public async Task Delete(FavoriteMovie movie)
         {
             _dataContext.Movies.Remove(movie);
+            await _dataContext.SaveChangesAsync();
         }
 
         public async Task<int> Count()
@@ -67,6 +68,7 @@ namespace Infraestructure.Repository
 
             return movie;
         }
+
 
         public async Task<IEnumerable<FavoriteMovie>> FindAll()
         {

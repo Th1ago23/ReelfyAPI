@@ -15,6 +15,7 @@ namespace Domain.Interface.Services.IUser
         public Task<IEnumerable<UserResponseDTO>> GetAllUsers();
 
         public Task<UserResponseDTO?> UpdatePassword(UpdatePasswordDTO update, string newPassword);
+        public Task<>
         public Task<bool> VerifyUser(string email);
 
         public Task<bool> DeleteUser(int id);

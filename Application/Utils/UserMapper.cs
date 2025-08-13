@@ -17,7 +17,7 @@ namespace ReelfyAPI.Utils
             {
                 Email = userResponseDTO.Email,
                 Id = userResponseDTO.Id,
-                CreatedAt = userResponseDTO.CreatedAt
+                CreatedAt = userResponseDTO.CreatedAt                
             };
         }
 
