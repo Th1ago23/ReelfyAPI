@@ -18,5 +18,5 @@ namespace ReelfyAPI.Models.DTO
     [Required]
     string PhoneNumber)
     { }
-        
+
 }

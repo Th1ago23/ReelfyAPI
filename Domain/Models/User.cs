@@ -20,10 +20,10 @@ namespace ReelfyAPI.Models
         public string Email { get; set; }
 
         [Required]
-        public byte [] PasswordHash { get; set; }
+        public byte[] PasswordHash { get; set; }
 
         [Required]
-        public byte [] PasswordSalt { get; set; }
+        public byte[] PasswordSalt { get; set; }
 
         [Required]
         public string PhoneNumber { get; set; }

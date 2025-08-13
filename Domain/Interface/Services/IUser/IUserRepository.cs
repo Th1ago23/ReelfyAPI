@@ -1,11 +1,6 @@
 ﻿using ReelfyAPI.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Domain.Interface.Services.User
+namespace Domain.Interface.Services.IUser
 {
     public interface IUserRepository
     {
@@ -16,5 +11,6 @@ namespace Domain.Interface.Services.User
         Task Update(User user);
         Task Delete(User user);
         Task<bool> UserExists(string email);
+        Task<User> GetUserInContext();
     }
 }

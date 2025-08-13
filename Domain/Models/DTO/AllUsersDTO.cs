@@ -2,6 +2,6 @@
 {
     public record AllUsersDTO(IEnumerable<UserResponseDTO> Users)
     {
-        
+
     }
 }

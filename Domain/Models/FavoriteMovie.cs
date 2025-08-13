@@ -1,12 +1,7 @@
 ﻿using Domain.Utils;
 using ReelfyAPI.Models;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Domain.Models
 {
@@ -18,9 +13,21 @@ namespace Domain.Models
         public string Title { get; set; }
         public Category category { get; set; }
         public string ImageUrl { get; set; }
-        public int? FavoriteCount { get; set; }
 
         public ICollection<User> User { get; set; }
+
+
+        public FavoriteMovie() { }
+
+        public FavoriteMovie(int id, string Title, Category category, string ImageUrl, ICollection<User> user)
+        {
+            this.Id = id;
+            this.Title = Title;
+            this.category = category;
+            this.ImageUrl = ImageUrl;
+            this.User = user;
+
+        }
 
     }
 }

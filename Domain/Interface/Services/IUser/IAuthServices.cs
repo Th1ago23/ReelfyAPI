@@ -1,6 +1,6 @@
 ﻿using ReelfyAPI.Models.DTO;
 
-namespace Domain.Interface.Services.User
+namespace Domain.Interface.Services.IUser
 {
     public interface IAuthServices
     {

@@ -1,4 +1,4 @@
-﻿using Microsoft.Identity.Client;
+﻿using Domain.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
 
@@ -22,9 +22,9 @@ namespace ReelfyAPI.Utils
             }
         }
 
-    
 
-    public static List<FavoriteMovie> DeserializeJson(string json)
+
+        public static List<FavoriteMovie> DeserializeJson(string json)
         {
             try
             {
@@ -33,8 +33,9 @@ namespace ReelfyAPI.Utils
                     return new List<FavoriteMovie>();
                 }
 
-               return JsonSerializer.Deserialize<List<FavoriteMovie>>(json);
-            }catch (JsonException e)
+                return JsonSerializer.Deserialize<List<FavoriteMovie>>(json);
+            }
+            catch (JsonException e)
             {
                 throw new Exception($"Error {e.Message}");
             }

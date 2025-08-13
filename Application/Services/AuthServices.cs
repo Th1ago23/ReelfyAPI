@@ -1,12 +1,8 @@
-﻿using ReelfyAPI.Data;
-using ReelfyAPI.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-using ReelfyAPI.Models.DTO;
+﻿using Application.Utils;
+using Domain.Interface.Services.IUser;
 using Microsoft.Extensions.Configuration;
-using Application.Utils;
-using Infraestructure.Repository;
-using Domain.Interface.Services.User;
+using ReelfyAPI.Models.DTO;
+using System.Security.Claims;
 namespace ReelfyAPI.Services
 {
     public class AuthServices : IAuthServices
@@ -26,13 +22,13 @@ namespace ReelfyAPI.Services
         }
 
         public async Task<UserResponseDTO> Register(UserRegisterDTO user)
-        {     
+        {
             var userEntity = _mapper.ToUser(user);
 
             _jwtFunctions.CreatePasswordHash(user.Password, out byte[] passwordHash, out byte[] passwordSalt);
             userEntity.PasswordHash = passwordHash;
             userEntity.PasswordSalt = passwordSalt;
-            
+
             await _context.Add(userEntity);
 
 
@@ -49,7 +45,7 @@ namespace ReelfyAPI.Services
         public async Task<UserResponseDTO> GetUserByEmail(string email)
         {
             var userEntity = await _context.GetByEmail(email);
-                        
+
             return _mapper.ToUserResponseDTO(userEntity);
         }
 
@@ -129,10 +125,12 @@ namespace ReelfyAPI.Services
             if (user == null)
             {
                 return null;
-            } else if ( VerifyPasswordHash(updateDTO.CurrentPassword, user.PasswordHash, user.PasswordSalt) == false)
+            }
+            else if (VerifyPasswordHash(updateDTO.CurrentPassword, user.PasswordHash, user.PasswordSalt) == false)
             {
                 throw new UnauthorizedAccessException("Senha atual inválida.");
-            } else if (string.IsNullOrEmpty(updateDTO.CurrentPassword) || string.IsNullOrEmpty(updateDTO.NewPassword))
+            }
+            else if (string.IsNullOrEmpty(updateDTO.CurrentPassword) || string.IsNullOrEmpty(updateDTO.NewPassword))
             {
                 return null;
             }
@@ -141,7 +139,7 @@ namespace ReelfyAPI.Services
             _jwtFunctions.CreatePasswordHash(newPassword, out byte[] passwordHash, out byte[] passwordSalt);
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
-            
+
             await _context.Update(user);
 
             return _mapper.ToUserResponseDTO(user);
@@ -163,8 +161,8 @@ namespace ReelfyAPI.Services
             }
         }
 
-        public async Task<bool> VerifyUser (string email)
-        {          
+        public async Task<bool> VerifyUser(string email)
+        {
             return await _context.UserExists(email);
         }
     }

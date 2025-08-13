@@ -1,10 +1,13 @@
-using ReelfyAPI.Data;
-using Microsoft.EntityFrameworkCore;
+using Application.Services;
+using Application.Utils;
+using Domain.Interface.Services.IUser;
+using Domain.Interface.Services.Movie;
+using Infraestructure.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using ReelfyAPI.Data;
 using ReelfyAPI.Services;
 using ReelfyAPI.Utils;
-using Infraestructure.Repository;
-using Domain.Interface.Services.User;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,12 +16,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddScoped<IAuthServices, AuthServices>();
-builder.Services.AddScoped<UserRepository, UserRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IMovieRepository, MovieRepository>();
+builder.Services.AddScoped<IMovieService, MovieService>();
+builder.Services.AddScoped<JwtFunctions, JwtFunctions>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IUserMapper, UserMapper>();
-
+builder.Services.AddScoped<IMovieMapper, MovieMapper>();
 
 
 builder.Services.AddDbContext<DataContext>(options =>
@@ -39,16 +46,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-    builder.Services.AddCors(options =>
-    {
-        options.AddPolicy("AllowAllOrigins",
-            builder => builder.AllowAnyOrigin()
-                             .AllowAnyHeader()
-                             .AllowAnyMethod());
-    });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder => builder.AllowAnyOrigin()
+                         .AllowAnyHeader()
+                         .AllowAnyMethod());
+});
 
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 
 // Configure the HTTP request pipeline.

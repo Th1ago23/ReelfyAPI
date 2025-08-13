@@ -4,7 +4,7 @@ using ReelfyAPI.Models;
 
 namespace ReelfyAPI.Data
 {
-    public class DataContext: DbContext
+    public class DataContext : DbContext
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         { }
@@ -17,7 +17,9 @@ namespace ReelfyAPI.Data
             base.OnModelCreating(modelBuilder);
         }
 
+
+
     }
-    
+
 }
 

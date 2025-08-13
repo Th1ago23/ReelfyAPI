@@ -1,6 +1,6 @@
-﻿using ReelfyAPI.Models;
+﻿using Domain.Interface.Services.IUser;
+using ReelfyAPI.Models;
 using ReelfyAPI.Models.DTO;
-using Domain.Interface.Services.User;
 
 namespace ReelfyAPI.Utils
 {

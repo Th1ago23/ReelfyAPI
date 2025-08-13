@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.Utils;
 
 namespace Domain.Models.DTO
 {
-    public class FavoriteMovieDTO
-    {
-        public string Title { get; set; }
-        public string Category { get; set; }
-        public string ImageUrl { get; set; }
-    }
+    public record FavoriteMovieDTO
+    (int id, string Title, Category Category, string ImageUrl)
+    { }
 }
