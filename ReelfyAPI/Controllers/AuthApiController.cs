@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Domain.Interface.Services.IUser;
+using Microsoft.AspNetCore.Mvc;
 using ReelfyAPI.Models;
 using ReelfyAPI.Models.DTO;
-using ReelfyAPI.Services.Interfaces;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace ReelfyAPI.Controllers
 {
@@ -70,15 +69,15 @@ namespace ReelfyAPI.Controllers
             return Ok(user);
         }
 
-        [HttpPost("register",Name = "Register")]
+        [HttpPost("register", Name = "Register")]
         public async Task<IActionResult> Register(UserRegisterDTO request)
         {
-            if (await _authServices.UserExists(request.Email))
+            if (await _authServices.VerifyUser(request.Email))
             {
                 return Conflict(new Response<UserRegisterDTO>(request, "Usuário já cadastrado.", 0));
             }
 
-            var userToCreate = new UserRegisterDTO(request.Email,request.Name, request.Password, request.Age, request.PhoneNumber);
+            var userToCreate = new UserRegisterDTO(request.Email, request.Name, request.Password, request.Age, request.PhoneNumber);
 
             var createdUser = await _authServices.Register(userToCreate);
             var token = _authServices.CreateToken(createdUser);
@@ -101,7 +100,7 @@ namespace ReelfyAPI.Controllers
         [HttpGet("/health")]
         public IActionResult HealthCheck() => Ok("API tá viva!");
 
-        [HttpPost("login",Name ="Login")]
+        [HttpPost("login", Name = "Login")]
         public async Task<IActionResult> Login(UserLoginDTO request)
         {
 
@@ -113,8 +112,9 @@ namespace ReelfyAPI.Controllers
 
             var token = _authServices.CreateToken(user);
 
-            if (token  == null) {
-                return Unauthorized(new Response<UserResponseDTO>(user,"Sem autorização. Seu token não foi salvo corretamente.",401));
+            if (token == null)
+            {
+                return Unauthorized(new Response<UserResponseDTO>(user, "Sem autorização. Seu token não foi salvo corretamente.", 401));
             }
 
             var response = new

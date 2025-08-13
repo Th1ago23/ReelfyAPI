@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReelfyAPI", "ReelfyAPI\Reel
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infraestructure", "Infraestructure\Infraestructure.csproj", "{B9DAD414-FDD7-4CA0-AB69-BEA3934AAABA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{842658AE-4D84-4236-B25C-00664F9D4F20}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{364CE67C-81AB-4D5C-85DA-8946EDB6742D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{B9DAD414-FDD7-4CA0-AB69-BEA3934AAABA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9DAD414-FDD7-4CA0-AB69-BEA3934AAABA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9DAD414-FDD7-4CA0-AB69-BEA3934AAABA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{842658AE-4D84-4236-B25C-00664F9D4F20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{842658AE-4D84-4236-B25C-00664F9D4F20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{842658AE-4D84-4236-B25C-00664F9D4F20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{842658AE-4D84-4236-B25C-00664F9D4F20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{364CE67C-81AB-4D5C-85DA-8946EDB6742D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{364CE67C-81AB-4D5C-85DA-8946EDB6742D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{364CE67C-81AB-4D5C-85DA-8946EDB6742D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{364CE67C-81AB-4D5C-85DA-8946EDB6742D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

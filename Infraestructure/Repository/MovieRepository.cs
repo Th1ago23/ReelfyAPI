@@ -1,0 +1,90 @@
+﻿using Domain.Interface.Services.IUser;
+using Domain.Interface.Services.Movie;
+using Domain.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using ReelfyAPI.Data;
+using ReelfyAPI.Models;
+using System.Data.Common;
+
+namespace Infraestructure.Repository
+{
+    public class MovieRepository : IMovieRepository
+    {
+        private readonly DataContext _dataContext;
+        private readonly IHttpContextAccessor _acessor;
+        private readonly IUserRepository _userRepository;
+
+        public MovieRepository(DataContext dataContext, IHttpContextAccessor acessor, IUserRepository userRepository)
+        {
+            _userRepository = userRepository;
+            _acessor = acessor;
+            _dataContext = dataContext;
+        }
+
+        public async Task<FavoriteMovie> Add(FavoriteMovie movie, User user)
+        {
+            try
+            {
+                if (movie == null || user == null)
+                {
+                    throw new NullReferenceException();
+                }
+
+                if (movie.User == null)
+                {
+                    movie.User = new List<User>();
+                }
+
+                movie.User.Add(user);
+
+                _dataContext.Add(movie);
+
+                await _dataContext.SaveChangesAsync();
+
+                return movie;
+            }
+            catch (DbException e)
+            {
+                throw new ApplicationException("An error occurred while saving favorite movie.", e); ;
+            }
+        }
+
+        public async Task Delete(FavoriteMovie movie)
+        {
+            _dataContext.Movies.Remove(movie);
+        }
+
+        public async Task<int> Count()
+        {
+            return await _dataContext.Movies.CountAsync();
+        }
+
+        public async Task<FavoriteMovie> Find(int id)
+        {
+            var movie = _dataContext.Movies.FirstOrDefault(x => x.Id == id)
+                ?? throw new Exception($"Não foi possível buscar um filme com o id {id}.");
+
+            return movie;
+        }
+
+        public async Task<IEnumerable<FavoriteMovie>> FindAll()
+        {
+            var movies = await _dataContext.Movies.ToListAsync();
+
+            if (movies.Count == 0)
+            {
+                return Enumerable.Empty<FavoriteMovie>();
+            }
+
+            return movies;
+        }
+
+        public async Task<FavoriteMovie> FindByName(string title)
+        {
+            var movie = await _dataContext.Movies.FirstOrDefaultAsync(m => m.Title == title);
+
+            return movie;
+        }
+    }
+}
