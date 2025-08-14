@@ -51,6 +51,18 @@ namespace Infraestructure.Repository
             return user;
         }
 
+        public async Task RemoveFavorite(int id)
+        {
+            var movies = _context.Users.Select(u => u.Movies).ToList();
+            
+            foreach(var movie in movies)
+            {
+                if (movie.Any(u => u.Id == id)) _context.Remove(movie);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<User> FindFavorite (int id)
         {
             var user = await _context

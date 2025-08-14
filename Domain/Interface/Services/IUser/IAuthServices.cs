@@ -17,6 +17,7 @@ namespace Domain.Interface.Services.IUser
 
         public Task<UserResponseDTO?> UpdatePassword(UpdatePasswordDTO update, string newPassword);
         public Task<FavoriteDTO> GetFavorite(int id);
+        public Task<FavoriteDTO> GetFavoriteInContext();
         public Task<bool> VerifyUser(string email);
 
         public Task<bool> DeleteUser(int id);

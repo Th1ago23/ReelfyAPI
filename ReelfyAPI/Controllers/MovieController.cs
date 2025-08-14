@@ -37,8 +37,17 @@ namespace ReelfyAPI.Controllers
             if (user is null) return BadRequest();
 
             return Ok(user);
-
-
         }
+
+        [Authorize]
+        [HttpGet("getfavoriteincontext")]
+        public async Task<IActionResult> GetFavoriteInContext()
+        {
+            var user = await _authServices.GetFavoriteInContext();
+            if (user is null) return BadRequest();
+                       
+            return Ok(user);
+        }
+    
     }
 }

@@ -168,12 +168,23 @@ namespace ReelfyAPI.Services
         {
             var user = await _context.FindFavorite(id);
 
-            if (user == null)
-            {
-                return null;
-            }
+            if (user == null) return null;
 
             return _mapper.ToFavorite(user);
+        }
+
+        public async Task<FavoriteDTO> GetFavoriteInContext()
+        {
+            var user = await _context.FindFavoriteInContext() ?? throw new ArgumentNullException();
+
+            return _mapper.ToFavorite(user);
+
+        }
+
+        public async Task RemoveFavorite(int id)
+        {
+            var user = await _context.FindFavoriteInContext();
+
         }
 
     
