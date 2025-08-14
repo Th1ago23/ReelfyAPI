@@ -1,4 +1,6 @@
 ﻿using Domain.Interface.Services.IUser;
+using Domain.Models;
+using Domain.Models.DTO;
 using ReelfyAPI.Models;
 using ReelfyAPI.Models.DTO;
 
@@ -19,6 +21,21 @@ namespace ReelfyAPI.Utils
                 Id = userResponseDTO.Id,
                 CreatedAt = userResponseDTO.CreatedAt                
             };
+        }
+
+        public FavoriteDTO ToFavorite(User fav)
+        {
+            if (fav == null)
+            {
+                return null ;
+            }
+
+            return new FavoriteDTO
+            (
+                fav.Id,
+                fav.Email,
+                fav.Movies?.Select(m => new FavoriteMovieDTO (m.Id,m.Title,m.category,m.ImageUrl)).ToList() ?? new List<FavoriteMovieDTO>()
+            );
         }
 
         public User ToUser(UpdatePasswordDTO updatePasswordDTO)
@@ -79,7 +96,7 @@ namespace ReelfyAPI.Utils
 
             return new UserResponseDTO(user.Id, user.Email, user.CreatedAt);
         }
-
+              
         public UserResponseDTO ToUserResponseDTO(UserRegisterDTO userRegisterDTO)
         {
             if (userRegisterDTO == null)

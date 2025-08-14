@@ -1,4 +1,5 @@
-﻿using Domain.Interface.Services.Movie;
+﻿using Domain.Interface.Services.IUser;
+using Domain.Interface.Services.Movie;
 using Domain.Models.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,9 +11,11 @@ namespace ReelfyAPI.Controllers
     public class MovieController : ControllerBase
     {
         private readonly IMovieService _movieService;
+        private readonly IAuthServices _authServices;
 
-        public MovieController(IMovieService movieService)
+        public MovieController(IAuthServices authServices , IMovieService movieService)
         {
+            _authServices = authServices;
             _movieService = movieService;
         }
 
@@ -20,17 +23,22 @@ namespace ReelfyAPI.Controllers
         [HttpPost("favorite", Name = ("favorite"))]
         public async Task<IActionResult> Favorite(FavoriteMovieDTO request)
         {
-            if (request != null)
-            {
-                await _movieService.Favorite(request);
-                return Ok("Favoritado com Sucesso");
-            }
-            else
-            {
-                return BadRequest("Erro ao favoritar");
-            }
+            if (request is null) return BadRequest("Erro ao favoritar");
+
+            await _movieService.Favorite(request);
+            return Ok("Favoritado com Sucesso");
         }
 
-        [HttpGet]
+        [HttpGet("{id}", Name =("GetFavorite"))]
+        public async Task<IActionResult> GetFavorite (int id)
+        {
+            var user = await _authServices.GetFavorite(id);
+
+            if (user is null) return BadRequest();
+
+            return Ok(user);
+
+
+        }
     }
 }

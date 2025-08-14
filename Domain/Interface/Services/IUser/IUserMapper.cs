@@ -1,4 +1,5 @@
-﻿using ReelfyAPI.Models;
+﻿using Domain.Models.DTO;
+using ReelfyAPI.Models;
 using ReelfyAPI.Models.DTO;
 
 namespace Domain.Interface.Services.IUser
@@ -10,6 +11,7 @@ namespace Domain.Interface.Services.IUser
         public User ToUser(UpdatePasswordDTO updatePasswordDTO);
         public User ToUser(UserRegisterDTO userRegisterDTO);
         public User ToUser(UserLoginDTO userLoginDTO);
+        public FavoriteDTO ToFavorite (User fav);
 
         //Single - UserResponseDTO
         public UserResponseDTO ToUserResponseDTO(User user);

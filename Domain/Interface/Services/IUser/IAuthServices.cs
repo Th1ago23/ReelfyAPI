@@ -1,4 +1,5 @@
-﻿using ReelfyAPI.Models.DTO;
+﻿using Domain.Models.DTO;
+using ReelfyAPI.Models.DTO;
 
 namespace Domain.Interface.Services.IUser
 {
@@ -15,7 +16,7 @@ namespace Domain.Interface.Services.IUser
         public Task<IEnumerable<UserResponseDTO>> GetAllUsers();
 
         public Task<UserResponseDTO?> UpdatePassword(UpdatePasswordDTO update, string newPassword);
-        public Task<>
+        public Task<FavoriteDTO> GetFavorite(int id);
         public Task<bool> VerifyUser(string email);
 
         public Task<bool> DeleteUser(int id);

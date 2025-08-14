@@ -28,7 +28,7 @@ namespace ReelfyAPI.Models
         [Required]
         public string PhoneNumber { get; set; }
 
-        public ICollection<FavoriteMovie?> Movies { get; set; }
+        public ICollection<FavoriteMovie> Movies { get; set; } = new List<FavoriteMovie>();
 
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
