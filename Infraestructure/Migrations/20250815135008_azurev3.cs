@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infraestructure.Migrations
 {
     /// <inheritdoc />
-    public partial class NomeDaMigration : Migration
+    public partial class azurev3 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Movies",
+                name: "Contents",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false),
@@ -22,7 +22,7 @@ namespace Infraestructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Movies", x => x.Id);
+                    table.PrimaryKey("PK_Contents", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -56,9 +56,9 @@ namespace Infraestructure.Migrations
                 {
                     table.PrimaryKey("PK_FavoriteMovieUser", x => new { x.MoviesId, x.UserId });
                     table.ForeignKey(
-                        name: "FK_FavoriteMovieUser_Movies_MoviesId",
+                        name: "FK_FavoriteMovieUser_Contents_MoviesId",
                         column: x => x.MoviesId,
-                        principalTable: "Movies",
+                        principalTable: "Contents",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -82,7 +82,7 @@ namespace Infraestructure.Migrations
                 name: "FavoriteMovieUser");
 
             migrationBuilder.DropTable(
-                name: "Movies");
+                name: "Contents");
 
             migrationBuilder.DropTable(
                 name: "Users");

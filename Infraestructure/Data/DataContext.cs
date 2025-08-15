@@ -10,7 +10,7 @@ namespace ReelfyAPI.Data
         { }
 
         public DbSet<User> Users { get; set; }
-        public DbSet<FavoriteMovie> Movies { get; set; }
+        public DbSet<FavoriteMovie> Contents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
