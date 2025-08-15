@@ -1,1 +1,1 @@
-﻿SELECT * FROM Movies;
+Select * From Contents;

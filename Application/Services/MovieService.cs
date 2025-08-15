@@ -1,4 +1,5 @@
-﻿using Domain.Interface.Services.IUser;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Domain.Interface.Services.IUser;
 using Domain.Interface.Services.Movie;
 using Domain.Models;
 using Domain.Models.DTO;
@@ -8,11 +9,13 @@ namespace Application.Services
     public class MovieService : IMovieService
     {
         private readonly IMovieRepository _context;
+        private readonly IMemoryCache _cache;
         private readonly IMovieMapper _mapper;
         private readonly IUserRepository _userRepository;
 
-        public MovieService(IMovieRepository context, IMovieMapper mapper, IUserRepository userRepository)
+        public MovieService(IMemoryCache cache, IMovieRepository context, IMovieMapper mapper, IUserRepository userRepository)
         {
+            _cache = cache;
             _userRepository = userRepository;
             _context = context;
             _mapper = mapper;
@@ -32,6 +35,9 @@ namespace Application.Services
             user.Movies.Add(movie);
 
             await _context.Add(movie, user);
+
+            _cache.Remove($"UserFavorites_{user.Id}");
+
             return favoriteMovieDTO;
             
         }

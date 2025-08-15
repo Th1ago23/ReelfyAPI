@@ -12,13 +12,10 @@ namespace Infraestructure.Repository
     public class MovieRepository : IMovieRepository
     {
         private readonly DataContext _dataContext;
-        private readonly IHttpContextAccessor _acessor;
-        private readonly IUserRepository _userRepository;
+
 
         public MovieRepository(DataContext dataContext, IHttpContextAccessor acessor, IUserRepository userRepository)
         {
-            _userRepository = userRepository;
-            _acessor = acessor;
             _dataContext = dataContext;
         }
 
