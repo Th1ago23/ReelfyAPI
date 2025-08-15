@@ -5,7 +5,7 @@ namespace Domain.Interface.Services.IUser
     public interface IUserRepository
     {
         Task<User> Add(User user);
-        Task RemoveFavorite(int id);
+        Task<bool> RemoveFavorite(int id);
         Task<User> GetById(int id);
         Task<User> GetByEmail(string email);
         Task<IEnumerable<User>> GetAll();

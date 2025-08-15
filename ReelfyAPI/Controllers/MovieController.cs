@@ -26,7 +26,7 @@ namespace ReelfyAPI.Controllers
             if (request is null) return BadRequest("Erro ao favoritar");
 
             await _movieService.Favorite(request);
-            return Ok("Favoritado com Sucesso");
+            return Created();
         }
 
         [HttpGet("{id}", Name =("GetFavorite"))]
@@ -48,6 +48,16 @@ namespace ReelfyAPI.Controllers
                        
             return Ok(user);
         }
-    
+
+        [Authorize]
+        [HttpPost("RemoveFavorite/{id}", Name=("RemoveFavorite"))]
+        public async Task<IActionResult> RemoveMovie(int id)
+        {
+            var result = await _movieService.RemoveFavorite(id);
+
+            if (result != true) return BadRequest("Erro ao remover favorito");
+
+            return Ok("Filme desfavoritado com sucesso.");
+        }
     }
 }

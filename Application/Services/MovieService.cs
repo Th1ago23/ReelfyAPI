@@ -36,11 +36,9 @@ namespace Application.Services
             
         }
 
-        public async Task RemoveFavorite(FavoriteMovieDTO favoriteMovieDTO)
+        public async Task<bool> RemoveFavorite(int id)
         {
-            var movie = _mapper.ToEntity(favoriteMovieDTO);
-
-            await _context.Delete(movie);
+            return await _userRepository.RemoveFavorite(id);
         }
 
         

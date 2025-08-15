@@ -1,6 +1,7 @@
 ﻿using Domain.Interface.Services.IUser;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using ReelfyAPI.Data;
 using ReelfyAPI.Models;
 using System.Security.Claims;
@@ -51,19 +52,20 @@ namespace Infraestructure.Repository
             return user;
         }
 
-        public async Task RemoveFavorite(int id)
+        public async Task<bool> RemoveFavorite(int id)
         {
-            var movies = _context.Users.Select(u => u.Movies).ToList();
-            
-            foreach(var movie in movies)
-            {
-                if (movie.Any(u => u.Id == id)) _context.Remove(movie);
-            }
+            var user = await FindFavoriteInContext();
 
-            await _context.SaveChangesAsync();
+            var movie = user.Movies.FirstOrDefault(u => u.Id == id) ?? throw new NullReferenceException("Não foi encontrado nenhum filme com este Id.");
+
+            user.Movies.Remove(movie);
+
+            await _context.SaveChangesAsync();    
+            return true;
+
         }
 
-        public async Task<User> FindFavorite (int id)
+        public async Task<User> FindFavorite(int id)
         {
             var user = await _context
              .Users
