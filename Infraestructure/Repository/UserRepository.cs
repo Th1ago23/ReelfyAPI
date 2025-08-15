@@ -1,6 +1,7 @@
 ﻿using Domain.Interface.Services.IUser;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using ReelfyAPI.Data;
 using ReelfyAPI.Models;
 using System.Security.Claims;
@@ -19,11 +20,60 @@ namespace Infraestructure.Repository
             _context = context;
         }
 
-        public async Task<User> GetUserInContext()
+        public async Task<User?> GetUserInContext()
         {
-            var userId = int.Parse(_acessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            if (_acessor.HttpContext == null || _acessor.HttpContext.User == null)
+                throw new UnauthorizedAccessException("HttpContext ou User não encontrado.");
 
-            return await GetById(userId);
+            var claim = _acessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+            if (claim == null)
+                throw new UnauthorizedAccessException("Token JWT inválido ou expirado.");
+
+            if (!int.TryParse(claim.Value, out int userId))
+                throw new FormatException("O Claim do usuário não é um número válido.");
+
+            var user = await GetById(userId);
+            if (user == null)
+                throw new KeyNotFoundException("Usuário não encontrado no banco.");
+
+            return user;
+        }
+
+        public async Task<User> FindFavoriteInContext()
+        {
+            var ur = await GetUserInContext() ?? throw new ArgumentNullException();
+
+            var user = await _context
+             .Users
+             .Include(u => u.Movies)
+             .FirstOrDefaultAsync(u => u.Id == ur.Id)
+             ?? throw new ArgumentNullException();
+
+            return user;
+        }
+
+        public async Task<bool> RemoveFavorite(int id)
+        {
+            var user = await FindFavoriteInContext();
+
+            var movie = user.Movies.FirstOrDefault(u => u.Id == id) ?? throw new NullReferenceException("Não foi encontrado nenhum filme com este Id.");
+
+            user.Movies.Remove(movie);
+
+            await _context.SaveChangesAsync();    
+            return true;
+
+        }
+
+        public async Task<User> FindFavorite(int id)
+        {
+            var user = await _context
+             .Users
+             .Include(u => u.Movies)
+             .FirstOrDefaultAsync(u => u.Id == id)
+             ?? throw new ArgumentNullException();
+
+            return user;
         }
         public async Task<User> Add(User user)
         {
@@ -40,6 +90,7 @@ namespace Infraestructure.Repository
                 }
 
                 await _context.Users.AddAsync(user);
+                await _context.SaveChangesAsync();
 
                 return user;
 

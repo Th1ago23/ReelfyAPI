@@ -26,15 +26,11 @@ namespace Infraestructure.Repository
         {
             try
             {
-                if (movie == null || user == null)
-                {
-                    throw new NullReferenceException();
-                }
+                if (movie == null || user == null) throw new NullReferenceException();
 
-                if (movie.User == null)
-                {
-                    movie.User = new List<User>();
-                }
+                if (movie.User == null) movie.User = new List<User>();
+
+                if (movie.User.Contains(user)) throw new Exception("Usuário já favoritou este filme");
 
                 movie.User.Add(user);
 
@@ -46,13 +42,14 @@ namespace Infraestructure.Repository
             }
             catch (DbException e)
             {
-                throw new ApplicationException("An error occurred while saving favorite movie.", e); ;
+                throw new ApplicationException("Ocorreu um erro ao favoritar o filme/série.", e); ;
             }
         }
 
         public async Task Delete(FavoriteMovie movie)
         {
             _dataContext.Movies.Remove(movie);
+            await _dataContext.SaveChangesAsync();
         }
 
         public async Task<int> Count()
@@ -67,6 +64,7 @@ namespace Infraestructure.Repository
 
             return movie;
         }
+
 
         public async Task<IEnumerable<FavoriteMovie>> FindAll()
         {

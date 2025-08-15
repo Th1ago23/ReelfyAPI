@@ -2,7 +2,6 @@
 using Domain.Interface.Services.Movie;
 using Domain.Models;
 using Domain.Models.DTO;
-using Microsoft.AspNetCore.Http;
 
 namespace Application.Services
 {
@@ -10,44 +9,38 @@ namespace Application.Services
     {
         private readonly IMovieRepository _context;
         private readonly IMovieMapper _mapper;
-        private readonly IHttpContextAccessor _acessor;
         private readonly IUserRepository _userRepository;
 
-        public MovieService(IMovieRepository context, IMovieMapper mapper, IHttpContextAccessor acessor, IUserRepository userRepository)
+        public MovieService(IMovieRepository context, IMovieMapper mapper, IUserRepository userRepository)
         {
             _userRepository = userRepository;
-            _acessor = acessor;
             _context = context;
             _mapper = mapper;
         }
 
         public async Task<FavoriteMovieDTO> Favorite(FavoriteMovieDTO favoriteMovieDTO)
         {
-            if (favoriteMovieDTO != null)
-            {
-                var user = await _userRepository.GetUserInContext();
-                var movie = _mapper.ToEntity(favoriteMovieDTO);
+            if (favoriteMovieDTO is null) throw new ArgumentException("O objeto de filme favorito não pode ser nulo.");
 
-                if (user.Movies == null)
-                {
-                    user.Movies = new List<FavoriteMovie>();
-                }
-                user.Movies.Add(movie);
-
-                await _context.Add(movie, user);
-                return favoriteMovieDTO;
-            }
-            else
-            {
-                throw new ArgumentException("O objeto de filme favorito não pode ser nulo.");
-            }
-        }
-
-        public async Task RemoveFavorite(FavoriteMovieDTO favoriteMovieDTO)
-        {
+            var user = await _userRepository.GetUserInContext();
+            
             var movie = _mapper.ToEntity(favoriteMovieDTO);
+            
+            if (user.Movies is null) user.Movies = new List<FavoriteMovie>();
+            if (user.Movies.Contains(movie)) throw new ArgumentException("Este livro já foi favoritado");
 
-            _context.Delete(movie);
+            user.Movies.Add(movie);
+
+            await _context.Add(movie, user);
+            return favoriteMovieDTO;
+            
         }
+
+        public async Task<bool> RemoveFavorite(int id)
+        {
+            return await _userRepository.RemoveFavorite(id);
+        }
+
+        
     }
 }

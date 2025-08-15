@@ -1,5 +1,7 @@
 ﻿using Application.Utils;
 using Domain.Interface.Services.IUser;
+using Domain.Interface.Services.Movie;
+using Domain.Models.DTO;
 using Microsoft.Extensions.Configuration;
 using ReelfyAPI.Models.DTO;
 using System.Security.Claims;
@@ -8,14 +10,16 @@ namespace ReelfyAPI.Services
     public class AuthServices : IAuthServices
     {
         private readonly IUserRepository _context;
+        private readonly IMovieRepository _movie;
         private readonly IConfiguration _configuration;
         private readonly IUserMapper _mapper;
         private readonly JwtFunctions _jwtFunctions;
 
 
-        public AuthServices(IUserRepository context, IConfiguration configuration, IUserMapper mapper, JwtFunctions jwtFunctions)
+        public AuthServices(IMovieRepository movie, IUserRepository context, IConfiguration configuration, IUserMapper mapper, JwtFunctions jwtFunctions)
         {
             _context = context;
+            _movie = movie;
             _configuration = configuration;
             _mapper = mapper;
             _jwtFunctions = jwtFunctions;
@@ -149,21 +153,40 @@ namespace ReelfyAPI.Services
         {
             var user = await _context.GetById(id);
 
-            if (user != null)
-            {
-                await _context.Delete(user);
-                return true;
-            }
-            else
-            {
-                throw new Exception("Usuário não encontrado.");
+            if (user is null) throw new Exception("Usuário não encontrado.");
 
-            }
+            await _context.Delete(user);
+            return true;
         }
 
         public async Task<bool> VerifyUser(string email)
         {
             return await _context.UserExists(email);
         }
+
+        public async Task<FavoriteDTO> GetFavorite (int id)
+        {
+            var user = await _context.FindFavorite(id);
+
+            if (user == null) return null;
+
+            return _mapper.ToFavorite(user);
+        }
+
+        public async Task<FavoriteDTO> GetFavoriteInContext()
+        {
+            var user = await _context.FindFavoriteInContext() ?? throw new ArgumentNullException();
+
+            return _mapper.ToFavorite(user);
+
+        }
+
+        public async Task RemoveFavorite(int id)
+        {
+            var user = await _context.FindFavoriteInContext();
+
+        }
+
+    
     }
 }

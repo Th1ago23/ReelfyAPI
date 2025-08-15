@@ -14,7 +14,7 @@ namespace Domain.Models
         public Category category { get; set; }
         public string ImageUrl { get; set; }
 
-        public ICollection<User> User { get; set; }
+        public ICollection<User> User { get; set; } = new List<User>();
 
 
         public FavoriteMovie() { }
