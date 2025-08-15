@@ -1,5 +1,6 @@
 using Application.Services;
 using Application.Utils;
+using BGS;
 using Domain.Interface.Services.IUser;
 using Domain.Interface.Services.Movie;
 using Infraestructure.Repository;
@@ -21,6 +22,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IMovieRepository, MovieRepository>();
 builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddScoped<JwtFunctions, JwtFunctions>();
+builder.Services.AddHostedService<CleaningDatabase>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>

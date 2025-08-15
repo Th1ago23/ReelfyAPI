@@ -12,8 +12,8 @@ using ReelfyAPI.Data;
 namespace Infraestructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250814123957_new")]
-    partial class @new
+    [Migration("20250815135008_azurev3")]
+    partial class azurev3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,7 +43,7 @@ namespace Infraestructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Movies");
+                    b.ToTable("Contents");
                 });
 
             modelBuilder.Entity("FavoriteMovieUser", b =>

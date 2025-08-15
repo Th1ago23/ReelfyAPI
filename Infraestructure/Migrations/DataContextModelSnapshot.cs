@@ -40,7 +40,7 @@ namespace Infraestructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Movies");
+                    b.ToTable("Contents");
                 });
 
             modelBuilder.Entity("FavoriteMovieUser", b =>

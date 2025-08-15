@@ -48,18 +48,18 @@ namespace Infraestructure.Repository
 
         public async Task Delete(FavoriteMovie movie)
         {
-            _dataContext.Movies.Remove(movie);
+            _dataContext.Contents.Remove(movie);
             await _dataContext.SaveChangesAsync();
         }
 
         public async Task<int> Count()
         {
-            return await _dataContext.Movies.CountAsync();
+            return await _dataContext.Contents.CountAsync();
         }
 
         public async Task<FavoriteMovie> Find(int id)
         {
-            var movie = _dataContext.Movies.FirstOrDefault(x => x.Id == id)
+            var movie = _dataContext.Contents.FirstOrDefault(x => x.Id == id)
                 ?? throw new Exception($"Não foi possível buscar um filme com o id {id}.");
 
             return movie;
@@ -68,7 +68,7 @@ namespace Infraestructure.Repository
 
         public async Task<IEnumerable<FavoriteMovie>> FindAll()
         {
-            var movies = await _dataContext.Movies.ToListAsync();
+            var movies = await _dataContext.Contents.ToListAsync();
 
             if (movies.Count == 0)
             {
@@ -80,7 +80,7 @@ namespace Infraestructure.Repository
 
         public async Task<FavoriteMovie> FindByName(string title)
         {
-            var movie = await _dataContext.Movies.FirstOrDefaultAsync(m => m.Title == title);
+            var movie = await _dataContext.Contents.FirstOrDefaultAsync(m => m.Title == title);
 
             return movie;
         }
