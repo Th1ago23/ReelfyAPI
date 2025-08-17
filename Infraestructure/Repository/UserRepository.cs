@@ -1,7 +1,7 @@
 ﻿using Domain.Interface.Services.IUser;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
+using Microsoft.Extensions.Caching.Memory;
 using ReelfyAPI.Data;
 using ReelfyAPI.Models;
 using System.Security.Claims;
@@ -13,9 +13,11 @@ namespace Infraestructure.Repository
     {
         private readonly DataContext _context;
         private readonly IHttpContextAccessor _acessor;
+        private readonly IMemoryCache _cache;
 
-        public UserRepository(DataContext context, IHttpContextAccessor acessor)
+        public UserRepository(IMemoryCache cache, DataContext context, IHttpContextAccessor acessor)
         {
+            _cache = cache;
             _acessor = acessor;
             _context = context;
         }
@@ -42,12 +44,19 @@ namespace Infraestructure.Repository
         public async Task<User> FindFavoriteInContext()
         {
             var ur = await GetUserInContext() ?? throw new ArgumentNullException();
+            var cacheKey = $"UserFavorites_{ur.Id}";
+
+            if (_cache.TryGetValue(cacheKey, out User cachedUser)) return cachedUser;
 
             var user = await _context
              .Users
              .Include(u => u.Movies)
              .FirstOrDefaultAsync(u => u.Id == ur.Id)
              ?? throw new ArgumentNullException();
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
+            _cache.Set(cacheKey, user, cacheEntryOptions);
 
             return user;
         }
@@ -60,7 +69,10 @@ namespace Infraestructure.Repository
 
             user.Movies.Remove(movie);
 
-            await _context.SaveChangesAsync();    
+            await _context.SaveChangesAsync();
+
+            _cache.Remove($"UserFavorites_{user.Id}");
+
             return true;
 
         }
