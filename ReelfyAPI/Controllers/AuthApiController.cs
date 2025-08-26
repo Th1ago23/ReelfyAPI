@@ -85,7 +85,7 @@ namespace ReelfyAPI.Controllers
             var response = new
             {
                 data = createdUser,
-                token = token,
+                tokenRegister = token,
                 links = new List<LinkDTO>
                 {
                     new LinkDTO(Url.Link("GetUserById", new { id = createdUser.Id }), "self", "GET", "Detalhes do usuário", "application/json"),
@@ -107,7 +107,7 @@ namespace ReelfyAPI.Controllers
             var user = await _authServices.Login(request);
             if (user == null)
             {
-                return Unauthorized("Usuário ou senha inválidos!");
+                return Unauthorized(new Response<UserResponseDTO>(user, "Usuário ou senha inválidos!", 401));
             }
 
             var token = _authServices.CreateToken(user);
@@ -120,7 +120,8 @@ namespace ReelfyAPI.Controllers
             var response = new
             {
                 data = user,
-                token = token,
+                nameLogin = user.name,
+                tokenLogin = token,
                 links = new List<LinkDTO>
                 {
                     new LinkDTO(Url.Link("GetUserById", new { id = user.Id }), "self", "GET", "Detalhes do usuário", "application/json"),

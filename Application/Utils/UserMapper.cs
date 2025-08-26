@@ -94,7 +94,7 @@ namespace ReelfyAPI.Utils
                 return null;
             }
 
-            return new UserResponseDTO(user.Id, user.Email, user.CreatedAt);
+            return new UserResponseDTO(user.Id,user.Name, user.Email, user.CreatedAt);
         }
               
         public UserResponseDTO ToUserResponseDTO(UserRegisterDTO userRegisterDTO)
@@ -104,7 +104,7 @@ namespace ReelfyAPI.Utils
                 return null;
             }
 
-            return new UserResponseDTO(0, userRegisterDTO.Email, DateTime.UtcNow);
+            return new UserResponseDTO(0, userRegisterDTO.Name, userRegisterDTO.Email, DateTime.UtcNow);
         }
 
         public UserResponseDTO ToUserResponseDTO(UserLoginDTO userLoginDTO)
@@ -114,7 +114,7 @@ namespace ReelfyAPI.Utils
                 return null;
             }
 
-            return new UserResponseDTO(0, userLoginDTO.Email, null);
+            return new UserResponseDTO(0, null,userLoginDTO.Email, null);
         }
         public UserResponseDTO ToUserResponseDTO(UpdatePasswordDTO updatePasswordDTO)
         {
@@ -123,7 +123,7 @@ namespace ReelfyAPI.Utils
                 return null;
             }
 
-            return new UserResponseDTO(0, updatePasswordDTO.Email, null);
+            return new UserResponseDTO(0, null,updatePasswordDTO.Email, null);
         }
 
         public UserRegisterDTO ToUserRegisterDTO(User user)
