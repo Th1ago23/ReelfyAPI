@@ -1,25 +1,24 @@
-﻿using Domain.Interface.Services.IUser;
-using Domain.Interface.Services.Movie;
-using Domain.Models;
+﻿using Domain.Interface.Repository;
+using Domain.Models.Contents;
+using Domain.Models.Users;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using ReelfyAPI.Data;
-using ReelfyAPI.Models;
 using System.Data.Common;
 
 namespace Infraestructure.Repository
 {
-    public class MovieRepository : IMovieRepository
+    public class ContentRepository : IContentRepository
     {
         private readonly DataContext _dataContext;
 
 
-        public MovieRepository(DataContext dataContext, IHttpContextAccessor acessor, IUserRepository userRepository)
+        public ContentRepository(DataContext dataContext)
         {
             _dataContext = dataContext;
         }
 
-        public async Task<FavoriteMovie> Add(FavoriteMovie movie, User user)
+        public async Task<Content> Add(Content movie, User user)
         {
             try
             {
@@ -43,7 +42,7 @@ namespace Infraestructure.Repository
             }
         }
 
-        public async Task Delete(FavoriteMovie movie)
+        public async Task Delete(Content movie)
         {
             _dataContext.Contents.Remove(movie);
             await _dataContext.SaveChangesAsync();
@@ -54,7 +53,7 @@ namespace Infraestructure.Repository
             return await _dataContext.Contents.CountAsync();
         }
 
-        public async Task<FavoriteMovie> Find(int id)
+        public async Task<Content> Find(int id)
         {
             var movie = _dataContext.Contents.FirstOrDefault(x => x.Id == id)
                 ?? throw new Exception($"Não foi possível buscar um filme com o id {id}.");
@@ -63,19 +62,19 @@ namespace Infraestructure.Repository
         }
 
 
-        public async Task<IEnumerable<FavoriteMovie>> FindAll()
+        public async Task<IEnumerable<Content>> FindAll()
         {
             var movies = await _dataContext.Contents.ToListAsync();
 
             if (movies.Count == 0)
             {
-                return Enumerable.Empty<FavoriteMovie>();
+                return Enumerable.Empty<Content>();
             }
 
             return movies;
         }
 
-        public async Task<FavoriteMovie> FindByName(string title)
+        public async Task<Content> FindByName(string title)
         {
             var movie = await _dataContext.Contents.FirstOrDefaultAsync(m => m.Title == title);
 

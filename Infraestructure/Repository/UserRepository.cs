@@ -1,9 +1,9 @@
-﻿using Domain.Interface.Services.IUser;
+﻿using Domain.Interface.Repository;
+using Domain.Models.Users;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using ReelfyAPI.Data;
-using ReelfyAPI.Models;
 using System.Security.Claims;
 
 
@@ -15,67 +15,67 @@ namespace Infraestructure.Repository
         private readonly IHttpContextAccessor _acessor;
         private readonly IMemoryCache _cache;
 
-        public UserRepository(IMemoryCache cache, DataContext context, IHttpContextAccessor acessor)
+        public UserRepository(DataContext context)
         {
-            _cache = cache;
-            _acessor = acessor;
+            //_cache = cache;
+            //_acessor = acessor;
             _context = context;
         }
 
-        public async Task<User?> GetUserInContext()
-        {
-            if (_acessor.HttpContext == null || _acessor.HttpContext.User == null)
-                throw new UnauthorizedAccessException("HttpContext ou User não encontrado.");
+        //public async Task<User?> GetUserInContext()
+        //{
+        //    if (_acessor.HttpContext == null || _acessor.HttpContext.User == null)
+        //        throw new UnauthorizedAccessException("HttpContext ou User não encontrado.");
 
-            var claim = _acessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-            if (claim == null)
-                throw new UnauthorizedAccessException("Token JWT inválido ou expirado.");
+        //    var claim = _acessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+        //    if (claim == null)
+        //        throw new UnauthorizedAccessException("Token JWT inválido ou expirado.");
 
-            if (!int.TryParse(claim.Value, out int userId))
-                throw new FormatException("O Claim do usuário não é um número válido.");
+        //    if (!int.TryParse(claim.Value, out int userId))
+        //        throw new FormatException("O Claim do usuário não é um número válido.");
 
-            var user = await GetById(userId);
-            if (user == null)
-                throw new KeyNotFoundException("Usuário não encontrado no banco.");
+        //    var user = await GetById(userId);
+        //    if (user == null)
+        //        throw new KeyNotFoundException("Usuário não encontrado no banco.");
 
-            return user;
-        }
+        //    return user;
+        //}
 
-        public async Task<User> FindFavoriteInContext()
-        {
-            var ur = await GetUserInContext() ?? throw new ArgumentNullException();
-            var cacheKey = $"UserFavorites_{ur.Id}";
+        //public async Task<User> FindFavoriteInContext()
+        //{
+        //    var ur = await GetUserInContext() ?? throw new ArgumentNullException();
+        //    var cacheKey = $"UserFavorites_{ur.Id}";
 
-            if (_cache.TryGetValue(cacheKey, out User cachedUser)) return cachedUser;
+        //    if (_cache.TryGetValue(cacheKey, out User cachedUser)) return cachedUser;
 
-            var user = await _context
-             .Users
-             .Include(u => u.Movies)
-             .FirstOrDefaultAsync(u => u.Id == ur.Id)
-             ?? throw new ArgumentNullException();
+        //    var user = await _context
+        //     .Users
+        //     .Include(u => u.Movies)
+        //     .FirstOrDefaultAsync(u => u.Id == ur.Id)
+        //     ?? throw new ArgumentNullException();
 
-            var cacheEntryOptions = new MemoryCacheEntryOptions()
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
-            _cache.Set(cacheKey, user, cacheEntryOptions);
+        //    var cacheEntryOptions = new MemoryCacheEntryOptions()
+        //    .SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
+        //    _cache.Set(cacheKey, user, cacheEntryOptions);
 
-            return user;
-        }
+        //    return user;
+        //}
 
-        public async Task<bool> RemoveFavorite(int id)
-        {
-            var user = await FindFavoriteInContext();
+        //public async Task<bool> RemoveFavorite(int id)
+        //{
+        //    var user = await FindFavoriteInContext();
 
-            var movie = user.Movies.FirstOrDefault(u => u.Id == id) ?? throw new NullReferenceException("Não foi encontrado nenhum filme com este Id.");
+        //    var movie = user.Movies.FirstOrDefault(u => u.Id == id) ?? throw new NullReferenceException("Não foi encontrado nenhum filme com este Id.");
 
-            user.Movies.Remove(movie);
+        //    user.Movies.Remove(movie);
 
-            await _context.SaveChangesAsync();
+        //    await _context.SaveChangesAsync();
 
-            _cache.Remove($"UserFavorites_{user.Id}");
+        //    _cache.Remove($"UserFavorites_{user.Id}");
 
-            return true;
+        //    return true;
 
-        }
+        //}
 
         public async Task<User> FindFavorite(int id)
         {
