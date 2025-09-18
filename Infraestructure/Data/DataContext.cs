@@ -1,6 +1,6 @@
-﻿using Domain.Models;
+﻿using Domain.Models.Contents;
+using Domain.Models.Users;
 using Microsoft.EntityFrameworkCore;
-using ReelfyAPI.Models;
 
 namespace ReelfyAPI.Data
 {
@@ -10,7 +10,12 @@ namespace ReelfyAPI.Data
         { }
 
         public DbSet<User> Users { get; set; }
-        public DbSet<FavoriteMovie> Contents { get; set; }
+        public DbSet<Content> Contents { get; set; }
+        public DbSet<Preference> Preferences { get; set; }
+        public DbSet<Crew> Crews { get; set; }
+        public DbSet<Cast> Casts { get; set; }
+        public DbSet<Streaming> Streamings { get; set; }
+        public DbSet<Genre> Genres { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
