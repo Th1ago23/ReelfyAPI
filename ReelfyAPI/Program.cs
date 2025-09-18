@@ -1,7 +1,7 @@
 using Application.Services;
 using Application.Utils;
 using BGS;
-using Domain.Interface.Services.IUser;
+using Domain.Interface.Services;
 using Domain.Interface.Services.Movie;
 using Infraestructure.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,9 +18,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddScoped<IAuthServices, AuthServices>();
+builder.Services.AddScoped<IAuthServices, AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IMovieRepository, MovieRepository>();
+builder.Services.AddScoped<IContentRepository, ContentRepository>();
 builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddScoped<IMemoryCache, MemoryCache>();
 builder.Services.AddScoped<JwtFunctions, JwtFunctions>();
