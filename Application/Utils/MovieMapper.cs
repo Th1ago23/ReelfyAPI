@@ -1,6 +1,5 @@
 ﻿using Domain.Interface.Services.Movie;
-using Domain.Models;
-using Domain.Models.DTO;
+using Domain.Models.Contents;
 
 
 
@@ -8,14 +7,14 @@ namespace Application.Utils
 {
     public class MovieMapper : IMovieMapper
     {
-        public FavoriteMovie ToEntity(FavoriteMovieDTO movie)
+        public Content ToEntity(FavoriteMovieDTO movie)
         {
             if (movie == null)
             {
                 return null;
             }
 
-            return new FavoriteMovie
+            return new Content
             {
                 Id = movie.id,
                 Title = movie.Title,
@@ -24,9 +23,9 @@ namespace Application.Utils
             };
         }
 
-        public IEnumerable<FavoriteMovie> ToEntities(IEnumerable<FavoriteMovieDTO> movies)
+        public IEnumerable<Content> ToEntities(IEnumerable<FavoriteMovieDTO> movies)
         {
-            return movies?.Select(ToEntity) ?? Enumerable.Empty<FavoriteMovie>();
+            return movies?.Select(ToEntity) ?? Enumerable.Empty<Content>();
         }
     }
 }

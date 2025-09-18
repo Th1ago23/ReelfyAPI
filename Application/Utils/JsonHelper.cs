@@ -1,4 +1,4 @@
-﻿using Domain.Models;
+﻿using Domain.Models.Contents;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
 
@@ -6,7 +6,7 @@ namespace ReelfyAPI.Utils
 {
     public class JsonHelper
     {
-        public static string SerializeJson(List<FavoriteMovie> movies)
+        public static string SerializeJson(List<Content> movies)
         {
             try
             {
@@ -24,16 +24,16 @@ namespace ReelfyAPI.Utils
 
 
 
-        public static List<FavoriteMovie> DeserializeJson(string json)
+        public static List<Content> DeserializeJson(string json)
         {
             try
             {
                 if (json == null)
                 {
-                    return new List<FavoriteMovie>();
+                    return new List<Content>();
                 }
 
-                return JsonSerializer.Deserialize<List<FavoriteMovie>>(json);
+                return JsonSerializer.Deserialize<List<Content>>(json);
             }
             catch (JsonException e)
             {

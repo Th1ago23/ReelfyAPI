@@ -1,8 +1,7 @@
-﻿using Domain.Interface.Services.IUser;
-using Domain.Models;
-using Domain.Models.DTO;
-using ReelfyAPI.Models;
-using ReelfyAPI.Models.DTO;
+﻿using Application.DTO.Content;
+using Application.DTO.Users;
+using Application.Interface.UserInterface;
+using Domain.Models.Users;
 
 namespace ReelfyAPI.Utils
 {
@@ -19,7 +18,7 @@ namespace ReelfyAPI.Utils
             {
                 Email = userResponseDTO.Email,
                 Id = userResponseDTO.Id,
-                CreatedAt = userResponseDTO.CreatedAt                
+                CreatedAt = userResponseDTO.CreatedAt
             };
         }
 
@@ -27,14 +26,14 @@ namespace ReelfyAPI.Utils
         {
             if (fav == null)
             {
-                return null ;
+                return null;
             }
 
             return new FavoriteDTO
             (
                 fav.Id,
                 fav.Email,
-                fav.Movies?.Select(m => new FavoriteMovieDTO (m.Id,m.Title,m.category,m.ImageUrl)).ToList() ?? new List<FavoriteMovieDTO>()
+                fav.Movies?.Select(m => new FavoriteContentDTO(m.Id, m.Title, m.category, m.ImageUrl)).ToList() ?? new List<FavoriteContentDTO>()
             );
         }
 
@@ -94,9 +93,9 @@ namespace ReelfyAPI.Utils
                 return null;
             }
 
-            return new UserResponseDTO(user.Id,user.Name, user.Email, user.CreatedAt);
+            return new UserResponseDTO(user.Id, user.Name, user.Email, user.CreatedAt);
         }
-              
+
         public UserResponseDTO ToUserResponseDTO(UserRegisterDTO userRegisterDTO)
         {
             if (userRegisterDTO == null)
@@ -114,7 +113,7 @@ namespace ReelfyAPI.Utils
                 return null;
             }
 
-            return new UserResponseDTO(0, null,userLoginDTO.Email, null);
+            return new UserResponseDTO(0, null, userLoginDTO.Email, null);
         }
         public UserResponseDTO ToUserResponseDTO(UpdatePasswordDTO updatePasswordDTO)
         {
@@ -123,7 +122,7 @@ namespace ReelfyAPI.Utils
                 return null;
             }
 
-            return new UserResponseDTO(0, null,updatePasswordDTO.Email, null);
+            return new UserResponseDTO(0, null, updatePasswordDTO.Email, null);
         }
 
         public UserRegisterDTO ToUserRegisterDTO(User user)
