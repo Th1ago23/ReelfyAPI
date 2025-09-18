@@ -1,32 +1,29 @@
-﻿using Application.Utils;
-using Domain.Interface.Services.IUser;
-using Domain.Interface.Services.Movie;
-using Domain.Models.DTO;
+﻿using Application.DTO.Content;
+using Application.DTO.Returns;
+using Application.DTO.Users;
+using Application.Interface.UserInterface;
+using Application.Utils;
+using Domain.Interface.Services;
 using Microsoft.Extensions.Configuration;
-using ReelfyAPI.Models.DTO;
-using System.Security.Claims;
 namespace ReelfyAPI.Services
 {
-    public class AuthServices : IAuthServices
+    public class AuthService : IAuthServices
     {
         private readonly IUserRepository _context;
-        private readonly IMovieRepository _movie;
-        private readonly IConfiguration _configuration;
         private readonly IUserMapper _mapper;
         private readonly JwtFunctions _jwtFunctions;
 
 
-        public AuthServices(IMovieRepository movie, IUserRepository context, IConfiguration configuration, IUserMapper mapper, JwtFunctions jwtFunctions)
+        public AuthService(IContentRepository movie, IUserRepository context, IConfiguration configuration, IUserMapper mapper, JwtFunctions jwtFunctions)
         {
             _context = context;
-            _movie = movie;
-            _configuration = configuration;
             _mapper = mapper;
             _jwtFunctions = jwtFunctions;
         }
 
-        public async Task<UserResponseDTO> Register(UserRegisterDTO user)
+        public async Task<ResponseRequestDTO> Register(UserRegisterDTO user)
         {
+            if (user == null) throw new NullReferenceException("Necessário inserir todos os dados");
             var userEntity = _mapper.ToUser(user);
 
             _jwtFunctions.CreatePasswordHash(user.Password, out byte[] passwordHash, out byte[] passwordSalt);
@@ -36,13 +33,17 @@ namespace ReelfyAPI.Services
             await _context.Add(userEntity);
 
 
-            return _mapper.ToUserResponseDTO(userEntity);
+            var response = _mapper.ToUserResponseDTO(userEntity);
+            var token = _jwtFunctions.CreateToken(response);
+
+            return new ResponseRequestDTO(response, token);
         }
 
         public async Task<UserResponseDTO> GetUserById(int id)
         {
             var us = await _context.GetById(id);
 
+            if (us == null) throw new NullReferenceException($"Usuário não encontrado com o ID {id}");
             return _mapper.ToUserResponseDTO(us);
         }
 
@@ -61,13 +62,16 @@ namespace ReelfyAPI.Services
                         .ToUserResponseDTOList(await connection);
         }
 
-        public async Task<UserResponseDTO> Login(UserLoginDTO userDTO)
+        public async Task<ResponseRequestDTO> Login(UserLoginDTO userDTO)
         {
             var user = await _context.GetByEmail(userDTO.Email);
-            if (user == null || !VerifyPasswordHash(userDTO.Password, user.PasswordHash, user.PasswordSalt))
-                return null;
+            if (user == null) throw new NullReferenceException("E-mail ou senha inválidos. Verifique se já possui uma conta");
+            if (!VerifyPasswordHash(userDTO.Password, user.PasswordHash, user.PasswordSalt)) throw new ArgumentException("E-mail ou senha inválidos. Verifique se já possui uma conta");
 
-            return _mapper.ToUserResponseDTO(user);
+            var response = _mapper.ToUserResponseDTO(user);
+            var token = _jwtFunctions.CreateToken(response);
+
+            return new ResponseRequestDTO(response, token);
         }
 
         public bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
@@ -79,64 +83,19 @@ namespace ReelfyAPI.Services
                 return computedHash.SequenceEqual(storedHash);
             }
         }
-
-        public string CreateToken(UserResponseDTO user)
-        {
-            var claims = new List<Claim>
-           {
-               new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-               new Claim(ClaimTypes.Email, user.Email)
-           };
-
-            var tokenKey = _configuration.GetSection("AppSettings:Token").Value;
-            if (string.IsNullOrEmpty(tokenKey))
-            {
-                throw new ArgumentNullException(nameof(tokenKey), "TokenKey não pode ser nulo ou vazio.");
-            }
-
-            var key = new Microsoft
-                .IdentityModel
-                .Tokens
-                .SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(tokenKey));
-
-            var creds = new Microsoft
-                .IdentityModel
-                .Tokens
-                .SigningCredentials(key, Microsoft.IdentityModel.Tokens.SecurityAlgorithms.HmacSha512Signature);
-
-            var tokenDescriptor = new Microsoft
-                .IdentityModel
-                .Tokens
-                .SecurityTokenDescriptor
-            {
-                Subject = new System.Security.Claims.ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddDays(7),
-                SigningCredentials = creds
-            };
-
-            var tokenHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return tokenHandler.WriteToken(token);
-        }
-
         public async Task<UserResponseDTO> UpdatePassword(UpdatePasswordDTO updateDTO, string newPassword)
         {
             var user = await _context
-                .GetByEmail(updateDTO.Email);
+                .GetByEmail(updateDTO.Email)
+                ?? throw new NullReferenceException("Usuário não encontrado.");
 
-            if (user == null)
+            if (VerifyPasswordHash(updateDTO.CurrentPassword, user.PasswordHash, user.PasswordSalt) == false)
             {
-                return null;
-            }
-            else if (VerifyPasswordHash(updateDTO.CurrentPassword, user.PasswordHash, user.PasswordSalt) == false)
-            {
-                throw new UnauthorizedAccessException("Senha atual inválida.");
+                throw new ArgumentException("Senha atual inválida.");
             }
             else if (string.IsNullOrEmpty(updateDTO.CurrentPassword) || string.IsNullOrEmpty(updateDTO.NewPassword))
             {
-                return null;
+                throw new NullReferenceException("Não foi possível alterar a senha.");
             }
 
 
@@ -164,11 +123,10 @@ namespace ReelfyAPI.Services
             return await _context.UserExists(email);
         }
 
-        public async Task<FavoriteDTO> GetFavorite (int id)
+        public async Task<FavoriteDTO> GetFavorite(int id)
         {
-            var user = await _context.FindFavorite(id);
-
-            if (user == null) return null;
+            var user = await _context.FindFavorite(id)
+                ?? throw new NullReferenceException("Usuário não encontrado");
 
             return _mapper.ToFavorite(user);
         }
@@ -187,6 +145,6 @@ namespace ReelfyAPI.Services
 
         }
 
-    
+
     }
 }
