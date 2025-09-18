@@ -1,6 +1,6 @@
-﻿using Domain.Interface.Services.IUser;
-using Domain.Interface.Services.Movie;
-using Domain.Models.DTO;
+﻿using Application.DTO.Content;
+using Application.Interface.MovieInterface;
+using Application.Interface.UserInterface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +13,7 @@ namespace ReelfyAPI.Controllers
         private readonly IMovieService _movieService;
         private readonly IAuthServices _authServices;
 
-        public MovieController(IAuthServices authServices , IMovieService movieService)
+        public MovieController(IAuthServices authServices, IMovieService movieService)
         {
             _authServices = authServices;
             _movieService = movieService;
@@ -21,7 +21,7 @@ namespace ReelfyAPI.Controllers
 
         [Authorize]
         [HttpPost("favorite", Name = ("favorite"))]
-        public async Task<IActionResult> Favorite(FavoriteMovieDTO request)
+        public async Task<IActionResult> Favorite(FavoriteContentDTO request)
         {
             if (request is null) return BadRequest("Erro ao favoritar");
 
@@ -29,8 +29,8 @@ namespace ReelfyAPI.Controllers
             return Created();
         }
 
-        [HttpGet("{id}", Name =("GetFavorite"))]
-        public async Task<IActionResult> GetFavorite (int id)
+        [HttpGet("{id}", Name = ("GetFavorite"))]
+        public async Task<IActionResult> GetFavorite(int id)
         {
             var user = await _authServices.GetFavorite(id);
 
@@ -45,12 +45,12 @@ namespace ReelfyAPI.Controllers
         {
             var user = await _authServices.GetFavoriteInContext();
             if (user is null) return BadRequest();
-                       
+
             return Ok(user);
         }
 
         [Authorize]
-        [HttpPost("RemoveFavorite/{id}", Name=("RemoveFavorite"))]
+        [HttpPost("RemoveFavorite/{id}", Name = ("RemoveFavorite"))]
         public async Task<IActionResult> RemoveMovie(int id)
         {
             var result = await _movieService.RemoveFavorite(id);
