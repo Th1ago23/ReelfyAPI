@@ -15,10 +15,4 @@ public class Preference
     public ICollection<Genre> Genres { get; set; } = new List<Genre>();
     public ICollection<Streaming> Streamings { get; set; } = new List<Streaming>();
 
-    public Preference(int id, int userId, User user)
-    {
-        Id = id;
-        UserId = userId;
-        User = user;
-    }
 }

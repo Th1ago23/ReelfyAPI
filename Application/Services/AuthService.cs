@@ -3,7 +3,8 @@ using Application.DTO.Returns;
 using Application.DTO.Users;
 using Application.Interface.UserInterface;
 using Application.Utils;
-using Domain.Interface.Services;
+using Domain.Interface.HttpContext;
+using Domain.Interface.Repository;
 using Microsoft.Extensions.Configuration;
 namespace ReelfyAPI.Services
 {
@@ -11,14 +12,18 @@ namespace ReelfyAPI.Services
     {
         private readonly IUserRepository _context;
         private readonly IUserMapper _mapper;
+        private readonly IContextUser _contextUser;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly JwtFunctions _jwtFunctions;
 
 
-        public AuthService(IContentRepository movie, IUserRepository context, IConfiguration configuration, IUserMapper mapper, JwtFunctions jwtFunctions)
+        public AuthService(IContentRepository movie, IUserRepository context, IConfiguration configuration, IUserMapper mapper, JwtFunctions jwtFunctions, IContextUser contextUser, IUnitOfWork unitOfWork)
         {
+            _contextUser = contextUser;
             _context = context;
             _mapper = mapper;
             _jwtFunctions = jwtFunctions;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<ResponseRequestDTO> Register(UserRegisterDTO user)
@@ -133,7 +138,7 @@ namespace ReelfyAPI.Services
 
         public async Task<FavoriteDTO> GetFavoriteInContext()
         {
-            var user = await _context.FindFavoriteInContext() ?? throw new ArgumentNullException();
+            var user = await _context.FindFavorite(_contextUser.Id) ?? throw new ArgumentNullException();
 
             return _mapper.ToFavorite(user);
 
@@ -141,7 +146,16 @@ namespace ReelfyAPI.Services
 
         public async Task RemoveFavorite(int id)
         {
-            var user = await _context.FindFavoriteInContext();
+            var user = await _context.GetById(_contextUser.Id);
+
+            if (user is null) throw new UnauthorizedAccessException("Usuário sem permissão");
+
+            var contentToRemove = user.Contents.FirstOrDefault(i => i.Id == id);
+
+            if (contentToRemove != null) user.Contents.Remove(contentToRemove);
+
+            await _unitOfWork.CommitAsync();
+
 
         }
 

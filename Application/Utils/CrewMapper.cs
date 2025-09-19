@@ -1,0 +1,21 @@
+﻿using Application.DTO.Content;
+using Application.Interface.Mappers;
+using Domain.Models.Contents;
+
+namespace Application.Utils;
+
+public class CrewMapper:ICrewMapper
+{
+    public Crew ToEntity (CrewAddDTO dto)
+    {
+        return new Crew
+        {
+            Id = dto.id,
+            Name = dto.name,
+        };
+    }
+    public IEnumerable<Crew> ToEntities (IEnumerable<CrewAddDTO> dtos)
+    {
+        return dtos?.Select(ToEntity) ?? Enumerable.Empty<Crew>();
+    }
+}

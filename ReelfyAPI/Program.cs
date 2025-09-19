@@ -1,6 +1,9 @@
+using Application.Interface.ContentInterface;
+using Application.Interface.UserInterface;
 using Application.Services;
 using Application.Utils;
 using BGS;
+using Domain.Interface.Repository;
 using Domain.Interface.Services;
 using Domain.Interface.Services.Movie;
 using Infraestructure.Repository;
@@ -21,7 +24,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IAuthServices, AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IContentRepository, ContentRepository>();
-builder.Services.AddScoped<IMovieService, MovieService>();
+builder.Services.AddScoped<IContentService, ContentService>();
 builder.Services.AddScoped<IMemoryCache, MemoryCache>();
 builder.Services.AddScoped<JwtFunctions, JwtFunctions>();
 builder.Services.AddHostedService<CleaningDatabase>();
@@ -56,7 +59,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddScoped<IUserMapper, UserMapper>();
-builder.Services.AddScoped<IMovieMapper, MovieMapper>();
+builder.Services.AddScoped<IContentMapper, ContentMapper>();
 
 
 builder.Services.AddDbContext<DataContext>(options =>

@@ -28,7 +28,7 @@ public class User
     [Required]
     public string PhoneNumber { get; set; }
 
-    public ICollection<Content> Movies { get; set; } = new List<Content>();
+    public ICollection<Content> Contents { get; set; } = new List<Content>();
     public int PreferenceId { get; set; }
     public Preference Preference { get; set; }
 

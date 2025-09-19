@@ -1,13 +1,15 @@
-﻿using Domain.Interface.Services.Movie;
+﻿using Application.DTO.Content;
+using Application.Interface.ContentInterface;
+
 using Domain.Models.Contents;
 
 
 
 namespace Application.Utils
 {
-    public class MovieMapper : IMovieMapper
+    public class ContentMapper : IContentMapper
     {
-        public Content ToEntity(FavoriteMovieDTO movie)
+        public Content ToEntity(FavoriteContentDTO movie)
         {
             if (movie == null)
             {
@@ -23,7 +25,7 @@ namespace Application.Utils
             };
         }
 
-        public IEnumerable<Content> ToEntities(IEnumerable<FavoriteMovieDTO> movies)
+        public IEnumerable<Content> ToEntities(IEnumerable<FavoriteContentDTO> movies)
         {
             return movies?.Select(ToEntity) ?? Enumerable.Empty<Content>();
         }

@@ -1,5 +1,5 @@
 ﻿using Application.DTO.Content;
-using Application.Interface.MovieInterface;
+using Application.Interface.ContentInterface;
 using Application.Interface.UserInterface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,12 +8,12 @@ namespace ReelfyAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MovieController : ControllerBase
+    public class ContentController : ControllerBase
     {
-        private readonly IMovieService _movieService;
+        private readonly IContentService _movieService;
         private readonly IAuthServices _authServices;
 
-        public MovieController(IAuthServices authServices, IMovieService movieService)
+        public ContentController(IAuthServices authServices, IContentService movieService)
         {
             _authServices = authServices;
             _movieService = movieService;

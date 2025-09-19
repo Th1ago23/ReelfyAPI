@@ -10,9 +10,4 @@ public class Crew
     public string Name { get; set; } = string.Empty;
     public ICollection<Preference> Preferences { get; set; } = new List<Preference>();
 
-    public Crew(int id, string name)
-    {
-        Id = id;
-        Name = name;
-    }
 }

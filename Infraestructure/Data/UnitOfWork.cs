@@ -1,11 +1,12 @@
-﻿using Domain.Interface.Repository;
+﻿using Domain.Interface.HttpContext;
+using Domain.Interface.Repository;
 using Domain.Models.Contents;
 using Infraestructure.Repository;
 using ReelfyAPI.Data;
 
 namespace Infraestructure.Data;
 
-public class UnitOfWork
+public class UnitOfWork: IUnitOfWork
 {
     private readonly DataContext _context;
     
@@ -29,5 +30,14 @@ public class UnitOfWork
         User = new UserRepository(_context);
 
     }
+    public async Task<int> CommitAsync()
+    {
+        return await _context.SaveChangesAsync();
+    }
+    public void Dispose()
+    {
+        _context.Dispose();
+    }
+
 
 }

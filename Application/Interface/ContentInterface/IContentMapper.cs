@@ -2,9 +2,9 @@
 using Domain.Models.Contents;
 
 
-namespace Domain.Interface.Services.Movie;
+namespace Application.Interface.ContentInterface;
 
-public interface IMovieMapper
+public interface IContentMapper
 {
     //Entity
     public Content ToEntity(FavoriteContentDTO favoriteMovieDTO);

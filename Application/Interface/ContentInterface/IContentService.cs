@@ -1,8 +1,8 @@
 ﻿using Application.DTO.Content;
 
-namespace Application.Interface.MovieInterface
+namespace Application.Interface.ContentInterface
 {
-    public interface IMovieService
+    public interface IContentService
     {
         Task<FavoriteContentDTO> Favorite(FavoriteContentDTO movie);
         Task<bool> RemoveFavorite(int id);

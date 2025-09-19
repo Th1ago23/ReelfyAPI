@@ -10,10 +10,4 @@ public class Streaming
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public ICollection<Preference> Preferences { get; set; } = new List<Preference>();
-
-    public Streaming(int id, string name)
-    {
-        Id = id;
-        Name = name;
-    }
 }
