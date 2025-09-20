@@ -1,11 +1,14 @@
 using Application.Interface.ContentInterface;
+using Application.Interface.Mappers;
 using Application.Interface.UserInterface;
 using Application.Services;
 using Application.Utils;
 using BGS;
+using Domain.Interface.HttpContext;
+using Domain.Interface.Mappers;
 using Domain.Interface.Repository;
-using Domain.Interface.Services;
-using Domain.Interface.Services.Movie;
+using Infraestructure.Data;
+using Infraestructure.HttpAcessor;
 using Infraestructure.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -21,12 +24,28 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddScoped<IAuthServices, AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IContentRepository, ContentRepository>();
 builder.Services.AddScoped<IContentService, ContentService>();
 builder.Services.AddScoped<IMemoryCache, MemoryCache>();
 builder.Services.AddScoped<JwtFunctions, JwtFunctions>();
+builder.Services.AddScoped<IUserMapper, UserMapper>();
+builder.Services.AddScoped<IContentMapper, ContentMapper>();
+builder.Services.AddScoped<ICastMapper, CastMapper>();
+builder.Services.AddScoped<ICrewMapper, CrewMapper>();
+builder.Services.AddScoped<IGenreRepository, GenreRepository>();
+builder.Services.AddScoped<IStreamingMapper, StreamingMapper>();
+builder.Services.AddScoped<IPreferenceRepository, PreferenceRepository>();
+builder.Services.AddScoped<IPreferenceService, PreferenceService>();
+builder.Services.AddScoped<IContextUser, ContextUser>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IGenreMapper, GenreMapper>();
+builder.Services.AddScoped<IStreamingRepository, StreamingRepository>();
+builder.Services.AddScoped<ICrewRepository, CrewRepository>();
+builder.Services.AddScoped<ICastRepository, CastRepository>();
+
 builder.Services.AddHostedService<CleaningDatabase>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
@@ -58,8 +77,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddScoped<IUserMapper, UserMapper>();
-builder.Services.AddScoped<IContentMapper, ContentMapper>();
+
 
 
 builder.Services.AddDbContext<DataContext>(options =>

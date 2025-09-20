@@ -1,5 +1,6 @@
 ﻿using Domain.Models.Contents;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Models.Users;
 
@@ -29,7 +30,6 @@ public class User
     public string PhoneNumber { get; set; }
 
     public ICollection<Content> Contents { get; set; } = new List<Content>();
-    public int PreferenceId { get; set; }
     public Preference Preference { get; set; }
 
     public DateTime? CreatedAt { get; set; }

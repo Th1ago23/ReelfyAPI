@@ -33,7 +33,7 @@ namespace ReelfyAPI.Utils
             (
                 fav.Id,
                 fav.Email,
-                fav.Movies?.Select(m => new FavoriteContentDTO(m.Id, m.Title, m.category, m.ImageUrl)).ToList() ?? new List<FavoriteContentDTO>()
+                fav.Contents?.Select(m => new FavoriteContentDTO(m.Id, m.Title, m.category, m.ImageUrl)).ToList() ?? new List<FavoriteContentDTO>()
             );
         }
 

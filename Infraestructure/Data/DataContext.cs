@@ -20,11 +20,30 @@ namespace ReelfyAPI.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // 1:1 User → Preference sem cascade delete automático
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Preference)
+                .WithOne(p => p.User)
+                .HasForeignKey<Preference>(p => p.UserId)
+                .OnDelete(DeleteBehavior.Restrict); // evita múltiplos caminhos de cascade
+
+            // N:N automático (EF Core 5+ cria tabelas de junção)
+            modelBuilder.Entity<Preference>()
+                .HasMany(p => p.Casts)
+                .WithMany(c => c.Preferences);
+
+            modelBuilder.Entity<Preference>()
+                .HasMany(p => p.Crews)
+                .WithMany(c => c.Preferences);
+
+            modelBuilder.Entity<Preference>()
+                .HasMany(p => p.Genres)
+                .WithMany(g => g.Preferences);
+
+            modelBuilder.Entity<Preference>()
+                .HasMany(p => p.Streamings)
+                .WithMany(s => s.Preferences);
         }
-
-
-
     }
-
 }
-

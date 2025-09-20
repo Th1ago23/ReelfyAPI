@@ -1,5 +1,6 @@
 ﻿using Domain.Models.Users;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Models.Contents;
 
@@ -8,7 +9,7 @@ public class Preference
     [Key]
     public int Id { get; set; }
     public int UserId { get; set; }
-
+    [ForeignKey("UserId")]
     public User User { get; set; }
     public ICollection<Cast> Casts { get; set; } = new List<Cast>();
     public ICollection<Crew> Crews { get; set; } = new List<Crew>();

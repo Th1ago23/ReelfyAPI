@@ -26,25 +26,25 @@ public class PreferenceRepository: IPreferenceRepository
     {
         var preference = await GetPreferenceById(id);
         preference.Genres.Add(genre);
-        await _context.SaveChangesAsync();
+
     }
     public async Task AddCast(int id, Cast cast)
     {
         var preference = await GetPreferenceById(id) ?? throw new NullReferenceException();
         preference.Casts.Add(cast);
-        await _context.SaveChangesAsync();
+        
     }
     public async Task AddStreaming(int id, Streaming streaming)
     {
         var preference = await GetPreferenceById(id) ?? throw new NullReferenceException();
         preference.Streamings.Add(streaming);
-        await _context.SaveChangesAsync();
+        
     }
     public async Task AddCrew(int id, Crew crew)
     {
         var preference = await GetPreferenceById(id);
         preference.Crews.Add(crew);
-        await _context.SaveChangesAsync();
+        
     }
 
 }
