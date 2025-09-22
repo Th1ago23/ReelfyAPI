@@ -1,6 +1,5 @@
 ﻿using Domain.Models.Contents;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Models.Users;
 
@@ -13,7 +12,8 @@ public class User
     public string Name { get; set; }
 
     [Required]
-    public int Age { get; set; }
+    public DateOnly Birthday { get; set; }
+    public bool IsPreemium { get; set; } = false;
 
     [Required]
     [MaxLength(90)]
@@ -30,10 +30,34 @@ public class User
     public string PhoneNumber { get; set; }
 
     public ICollection<Content> Contents { get; set; } = new List<Content>();
-    public Preference Preference { get; set; }
+    public Preference Preference { get; set; } = new Preference();
 
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
+
+    public bool ValidateAge ()
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+
+        var age = today.Year - Birthday.Year;
+
+        if (Birthday > today.AddYears(-age)) age--;
+
+        return age >= 16;
+    
+    }
+    public int GetAge()
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var age = today.Year - Birthday.Year;
+
+        if (Birthday > today.AddYears(-age))
+        {
+            age--;
+        }
+
+        return age;
+    }
 
 
 }

@@ -13,6 +13,7 @@ public class Content
     public string Title { get; set; }
     public Category category { get; set; }
     public string ImageUrl { get; set; }
+    public bool AlreadySeen { get; set; } = false;
 
     public ICollection<User> User { get; set; } = new List<User>();
 
