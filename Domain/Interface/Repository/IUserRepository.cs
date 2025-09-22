@@ -9,8 +9,8 @@ namespace Domain.Interface.Repository
         Task<User> GetById(int id);
         Task<User> GetByEmail(string email);
         Task<IEnumerable<User>> GetAll();
-        Task Update(User user);
-        Task Delete(User user);
+        void Update(User user);
+        void Delete(User user);
         Task<User> FindFavorite(int id);
         Task<bool> UserExists(string email);
     }
