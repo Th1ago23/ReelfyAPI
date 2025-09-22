@@ -6,7 +6,7 @@ namespace Application.Interface.ContentInterface;
 
 public interface IContentMapper
 {
-    //Entity
+    public FavoriteContentDTO ToDTO(Content content);
     public Content ToEntity(FavoriteContentDTO favoriteMovieDTO);
     public IEnumerable<Content> ToEntities(IEnumerable<FavoriteContentDTO> favoriteMovies);
 

@@ -5,7 +5,8 @@ namespace Application.Interface.ContentInterface
     public interface IContentService
     {
         Task<FavoriteContentDTO> Favorite(FavoriteContentDTO movie);
-        Task<bool> RemoveFavorite(int id);
+        Task<FavoriteContentDTO> MarkAlreadySeen(int id, bool result);
+        Task<bool> Unfavorite(int id);
 
     }
 }
