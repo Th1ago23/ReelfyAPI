@@ -1,15 +1,14 @@
-﻿
-using Application.DTO.Users;
+﻿using Application.DTO.Users;
 using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
 
-namespace Application.Utils
+namespace Application.Services
 {
-    public class JwtFunctions
+    public class JwtService
     {
         private readonly IConfiguration _configuration;
 
-        public JwtFunctions(IConfiguration config)
+        public JwtService(IConfiguration config)
         {
             _configuration = config;
         }
@@ -60,7 +59,7 @@ namespace Application.Utils
                 .Tokens
                 .SecurityTokenDescriptor
             {
-                Subject = new System.Security.Claims.ClaimsIdentity(claims),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.Now.AddDays(7),
                 SigningCredentials = creds
             };

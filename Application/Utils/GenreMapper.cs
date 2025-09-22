@@ -1,4 +1,4 @@
-﻿using Application.DTO.Content;
+﻿using Application.DTO.Content.Preferences;
 using Application.Interface.Mappers;
 using Domain.Models.Contents;
 
@@ -13,6 +13,10 @@ public class GenreMapper:IGenreMapper
             Id = dto.id,
             Name = dto.name,
         };
+    }
+    public GenreAddDTO ToDTO (Genre genre)
+    {
+        return new GenreAddDTO(genre.Id, genre.Name);
     }
     public IEnumerable<Genre> ToEntities (IEnumerable<GenreAddDTO> dtos)
     {

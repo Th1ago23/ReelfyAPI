@@ -1,4 +1,4 @@
-﻿using Application.DTO.Content;
+﻿using Application.DTO.Content.Preferences;
 using Application.Interface.Mappers;
 using Domain.Models.Contents;
 
@@ -13,6 +13,10 @@ public class CrewMapper:ICrewMapper
             Id = dto.id,
             Name = dto.name,
         };
+    }
+    public CrewAddDTO ToDTO (Crew crew)
+    {
+        return new CrewAddDTO(crew.Id, crew.Name);
     }
     public IEnumerable<Crew> ToEntities (IEnumerable<CrewAddDTO> dtos)
     {

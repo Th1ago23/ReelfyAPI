@@ -2,6 +2,7 @@
 using Application.Interface.ContentInterface;
 
 using Domain.Models.Contents;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 
 
@@ -21,8 +22,13 @@ namespace Application.Utils
                 Id = movie.id,
                 Title = movie.Title,
                 ImageUrl = movie.ImageUrl,
+                AlreadySeen = movie.IsAlreadySeen,
                 User = null
             };
+        }
+        public FavoriteContentDTO ToDTO (Content content)
+        {
+            return new FavoriteContentDTO(content.Id, content.Title, content.category, content.ImageUrl, content.AlreadySeen);
         }
 
         public IEnumerable<Content> ToEntities(IEnumerable<FavoriteContentDTO> movies)

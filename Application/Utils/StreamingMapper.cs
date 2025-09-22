@@ -1,4 +1,4 @@
-﻿using Application.DTO.Content;
+﻿using Application.DTO.Content.Preferences;
 using Application.Interface.Mappers;
 using Domain.Models.Contents;
 
@@ -13,6 +13,10 @@ public class StreamingMapper:IStreamingMapper
             Id = dto.id,
             Name = dto.name
         };
+    }
+    public StreamingAddDTO ToDTO (Streaming streaming)
+    {
+        return new StreamingAddDTO(streaming.Id, streaming.Name);
     }
     public IEnumerable<Streaming> ToEntities (IEnumerable<StreamingAddDTO> dtos)
     {

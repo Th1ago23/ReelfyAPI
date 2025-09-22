@@ -1,4 +1,4 @@
-﻿using Application.DTO.Content;
+﻿using Application.DTO.Content.Preferences;
 using Application.Interface.ContentInterface;
 using Application.Interface.Mappers;
 using Domain.Interface.HttpContext;
@@ -70,77 +70,21 @@ public class PreferenceService: IPreferenceService
             Crews = crews,
             Streamings = streamings,
         };
-        
+
         await _repository.Add(preference);
         await _unitOfWork.CommitAsync();
-        return new PreferenceResponseDTO(preference.UserId, preference.Id);
+
+        var preferences = await _repository.GetPreferences(user.Preference.Id);
+
+        return new PreferenceResponseDTO(preferences.UserId, preferences.Id, preferences.Casts.Select(_castMapper.ToDTO),preferences.Crews.Select(_crewMapper.ToDTO),preferences.Genres.Select(_genreMapper.ToDTO), preferences.Streamings.Select(_streamingMapper.ToDTO));
     }
-        //}
-        //public async Task AddCast(int id, CastAddDTO dto)
-        //{
-        //    var user = await _userRepository.GetById(_contextUser.Id) ?? throw new UnauthorizedAccessException();
+    public async Task<PreferenceResponseDTO> GetAllPreferences()
+    {
+        var user = await _userRepository.GetById(_contextUser.Id);
 
-        //    if (user.PreferenceId != id) throw new UnauthorizedAccessException();
+        var preferences = await _repository.GetPreferences(user.Preference.Id);
 
-        //    var cast = new Cast
-        //    {
-        //        Id = dto.id,
-        //        Name = dto.name,
-        //    };
-
-        //    user.Preference.Casts.Add(cast);
-        //    await _unitOfWork.CommitAsync();        
-        //}
-        //public async Task AddGenre(int id, GenreAddDTO dto)
-        //{
-        //    var user = await _userRepository.GetById(_contextUser.Id) ?? throw new UnauthorizedAccessException();
-        //    if (user.PreferenceId != id) throw new UnauthorizedAccessException();
-
-        //    var genre = new Genre
-        //    {
-        //        Id = dto.id,
-        //        Name = dto.name,
-        //    };
-
-        //    user.Preference.Genres.Add(genre);
-        //    await _unitOfWork.CommitAsync();
-        //}
-        //public async Task AddCrew(int id, CrewAddDTO dto)
-        //{
-        //    var user = await _userRepository.GetById(_contextUser.Id) ?? throw new UnauthorizedAccessException();
-        //    if (user.PreferenceId != id) throw new UnauthorizedAccessException();
-
-        //    var crew = new Crew
-        //    {
-        //        Id = dto.id,
-        //        Name = dto.name,
-        //    };
-
-        //    user.Preference.Crews.Add(crew);
-        //    await _unitOfWork.CommitAsync();
-        //}
-
-        //public async Task AddStreaming (int id, StreamingAddDTO dto)
-        //{
-        //    var user = await _userRepository.GetById(_contextUser.Id) ?? throw new UnauthorizedAccessException();
-        //    if (user.PreferenceId != id) throw new UnauthorizedAccessException();
-
-        //    var streaming = new Streaming
-        //    {
-        //        Id = dto.id,
-        //        Name = dto.name,
-        //    };
-
-        //    user.Preference.Streamings.Add(streaming);
-        //    await _unitOfWork.CommitAsync();
-        //}
-        //public async Task RemoveCast(int id, CastAddDTO dto)
-        //{
-        //    var user = await _userRepository.GetById(_contextUser.Id) ?? throw new UnauthorizedAccessException();
-        //    if (user.PreferenceId != id) throw new UnauthorizedAccessException();
-
-        //    var castToRemove = user.Preference.Casts.FirstOrDefault(i =>  i.Id == dto.id)?? throw new NullReferenceException();
-        //    user.Preference.Casts.Remove(castToRemove);
-        //    await _unitOfWork.CommitAsync();
-        //}  
+        return new PreferenceResponseDTO(preferences.UserId, preferences.Id, preferences.Casts.Select(_castMapper.ToDTO), preferences.Crews.Select(_crewMapper.ToDTO), preferences.Genres.Select(_genreMapper.ToDTO), preferences.Streamings.Select(_streamingMapper.ToDTO));
+    
+    }
 }

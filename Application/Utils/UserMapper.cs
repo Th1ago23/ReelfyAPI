@@ -33,7 +33,7 @@ namespace ReelfyAPI.Utils
             (
                 fav.Id,
                 fav.Email,
-                fav.Contents?.Select(m => new FavoriteContentDTO(m.Id, m.Title, m.category, m.ImageUrl)).ToList() ?? new List<FavoriteContentDTO>()
+                fav.Contents?.Select(m => new FavoriteContentDTO(m.Id, m.Title, m.category, m.ImageUrl, m.AlreadySeen)).ToList() ?? new List<FavoriteContentDTO>()
             );
         }
 
@@ -62,7 +62,7 @@ namespace ReelfyAPI.Utils
             return new User
             {
                 Name = userRegisterDTO.Name,
-                Age = userRegisterDTO.Age,
+                Birthday = userRegisterDTO.Birthday,
                 Email = userRegisterDTO.Email,
                 PhoneNumber = userRegisterDTO.PhoneNumber,
                 PasswordHash = null,
@@ -132,7 +132,7 @@ namespace ReelfyAPI.Utils
                 return null;
             }
 
-            return new UserRegisterDTO(user.Email, user.Name, null, user.Age, user.PhoneNumber);
+            return new UserRegisterDTO(user.Email, user.Name, null, user.Birthday, user.PhoneNumber);
         }
 
         public UserRegisterDTO ToUserRegisterDTO(UserResponseDTO userResponseDTO)
@@ -142,7 +142,7 @@ namespace ReelfyAPI.Utils
                 return null;
             }
 
-            return new UserRegisterDTO(userResponseDTO.Email, null, null, 0, null);
+            return new UserRegisterDTO(userResponseDTO.Email, null, null, DateOnly.FromDateTime(DateTime.Now), null);
         }
         public UserRegisterDTO ToUserRegisterDTO(UserLoginDTO userLoginDTO)
         {
@@ -151,7 +151,7 @@ namespace ReelfyAPI.Utils
                 return null;
             }
 
-            return new UserRegisterDTO(userLoginDTO.Email, null, null, 0, null);
+            return new UserRegisterDTO(userLoginDTO.Email, null, null, DateOnly.FromDateTime(DateTime.Now), null);
         }
 
         public UserRegisterDTO ToUserRegisterDTO(UpdatePasswordDTO updatePasswordDTO)
@@ -161,7 +161,7 @@ namespace ReelfyAPI.Utils
                 return null;
             }
 
-            return new UserRegisterDTO(updatePasswordDTO.Email, null, null, 0, null);
+            return new UserRegisterDTO(updatePasswordDTO.Email, null, null, DateOnly.FromDateTime(DateTime.Now), null);
         }
 
         public UserLoginDTO ToUserLoginDTO(User user)
