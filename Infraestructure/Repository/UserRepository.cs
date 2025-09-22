@@ -41,11 +41,9 @@ namespace Infraestructure.Repository
         {
             var user = await GetById(userId);
 
-            var movie = user.Contents.FirstOrDefault(u => u.Id == ContentId) ?? throw new NullReferenceException("Não foi encontrado nenhum filme com este Id.");
+            var movie = user.Contents.FirstOrDefault(u => u.Id == ContentId) ?? throw new NullReferenceException("Não foi encontrado nenhum conteúdo com este Id.");
 
             user.Contents.Remove(movie);
-
-            await _context.SaveChangesAsync();
 
             return true;
 
@@ -76,7 +74,6 @@ namespace Infraestructure.Repository
                 }
 
                 await _context.Users.AddAsync(user);
-                await _context.SaveChangesAsync();
 
                 return user;
 
@@ -109,32 +106,34 @@ namespace Infraestructure.Repository
 
         public async Task<IEnumerable<User>> GetAll()
         {
-            var users = await _context
-                                    .Users
-                                    .Where(u => u.Email != null)
-                                    .ToListAsync();
+            var users = await _context.Users
+                .Include(u => u.Preference)
+                    .ThenInclude(p => p.Casts)
+                .Include(u => u.Preference)
+                    .ThenInclude(p => p.Crews)
+                .Include(u => u.Preference)
+                    .ThenInclude(p => p.Genres)
+                .Include(u => u.Preference)
+                    .ThenInclude(p => p.Streamings)
+                .Include(u => u.Contents)
+                .ToListAsync();
 
             return users;
         }
 
-        public async Task Update(User user)
+        public void Update(User user)
         {
             _context.Users
                 .Update(user);
 
             user.UpdatedAt = DateTime.UtcNow;
-
-            await _context
-                .SaveChangesAsync();
         }
 
-        public async Task Delete(User user)
+        public void Delete(User user)
         {
             _context.Users
                 .Remove(user);
 
-            await _context
-                .SaveChangesAsync();
         }
 
         public async Task<bool> UserExists(string email)

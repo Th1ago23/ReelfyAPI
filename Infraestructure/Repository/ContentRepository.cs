@@ -17,67 +17,76 @@ namespace Infraestructure.Repository
             _dataContext = dataContext;
         }
 
-        public async Task<Content> Add(Content movie, User user)
+        public async Task<Content> Add(Content content, User user)
         {
             try
             {
-                if (movie == null || user == null) throw new NullReferenceException();
+                if (content == null || user == null) throw new NullReferenceException();
 
-                if (movie.User == null) movie.User = new List<User>();
+                if (content.User == null) content.User = new List<User>();
 
-                if (movie.User.Contains(user)) throw new Exception("Usuário já favoritou este filme");
+                if (content.User.Contains(user)) throw new Exception("Usuário já favoritou este filme");
 
-                movie.User.Add(user);
+                content.User.Add(user);
 
-                _dataContext.Add(movie);
+                _dataContext.Add(content);
 
-                await _dataContext.SaveChangesAsync();
-
-                return movie;
+                return content;
             }
             catch (DbException e)
             {
                 throw new ApplicationException("Ocorreu um erro ao favoritar o filme/série.", e); ;
             }
         }
-
-        public async Task Delete(Content movie)
+        public void Update(Content content)
         {
-            _dataContext.Contents.Remove(movie);
-            await _dataContext.SaveChangesAsync();
+            try
+            {
+                _dataContext.Contents.Update(content);
+            
+            }catch(DbException e)
+            {
+                throw new ApplicationException($"{e.Message}", e);
+            }
         }
 
-        public async Task<int> Count()
+        public async Task Delete(Content content)
         {
-            return await _dataContext.Contents.CountAsync();
+            _dataContext.Contents.Remove(content);
         }
+
+        //public async Task<int> Count()
+        //{
+
+        //    //return await _dataContext.Contents.CountAsync();
+        //}
 
         public async Task<Content> Find(int id)
         {
-            var movie = _dataContext.Contents.FirstOrDefault(x => x.Id == id)
+            var content = _dataContext.Contents.FirstOrDefault(x => x.Id == id)
                 ?? throw new Exception($"Não foi possível buscar um filme com o id {id}.");
 
-            return movie;
+            return content;
         }
 
 
         public async Task<IEnumerable<Content>> FindAll()
         {
-            var movies = await _dataContext.Contents.ToListAsync();
+            var contents = await _dataContext.Contents.ToListAsync();
 
-            if (movies.Count == 0)
+            if (contents.Count == 0)
             {
                 return Enumerable.Empty<Content>();
             }
 
-            return movies;
+            return contents;
         }
 
         public async Task<Content> FindByName(string title)
         {
-            var movie = await _dataContext.Contents.FirstOrDefaultAsync(m => m.Title == title);
+            var content = await _dataContext.Contents.FirstOrDefaultAsync(m => m.Title == title);
 
-            return movie;
+            return content;
         }
     }
 }

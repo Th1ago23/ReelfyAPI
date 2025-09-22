@@ -18,6 +18,18 @@ public class PreferenceRepository: IPreferenceRepository
     {
         await _context.Preferences.AddAsync(preference);
     }
+    public async Task<Preference> GetPreferences(int id)
+    {
+        var preference = await _context
+
+                                    .Preferences
+                                    .Include(i=>i.Crews)
+                                    .Include(i => i.Casts)
+                                    .Include(i => i.Genres)
+                                    .Include(i => i.Streamings)
+                                    .FirstOrDefaultAsync(i => i.Id == id) ?? throw new NullReferenceException();
+        return preference;
+    }
     public async Task<Preference> GetPreferenceById(int id)
     {
         return await _context.Preferences.FirstOrDefaultAsync(i => i.Id == id) ?? throw new NullReferenceException();
