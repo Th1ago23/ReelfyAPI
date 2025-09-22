@@ -1,4 +1,4 @@
-﻿using Application.DTO.Content;
+﻿using Application.DTO.Content.Preferences;
 using Application.Interface.ContentInterface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -18,7 +18,7 @@ namespace ReelfyAPI.Controllers
         }
 
         [Authorize]
-        [HttpPost("Preferences")]
+        [HttpPost("AddPreferences")]
         public async Task<IActionResult> AddPreferences (PreferenceAddDTO dto)
         {
             try
@@ -29,6 +29,24 @@ namespace ReelfyAPI.Controllers
             }catch (UnauthorizedAccessException e)
             {
                 return Unauthorized(e);
+            }
+        }
+        [Authorize]
+        [HttpGet("GetPreferences")]
+        public async Task<IActionResult> GetPreferences()
+        {
+            try
+            {
+                var result = await _service.GetAllPreferences();
+
+                return Ok(result);
+            }catch(NullReferenceException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch(UnauthorizedAccessException e) 
+            {
+                return Unauthorized(e.Message);
             }
         }
     }
