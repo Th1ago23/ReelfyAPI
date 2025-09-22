@@ -13,7 +13,7 @@ namespace Application.DTO.Users
     string Password,
 
     [Required]
-    int Age,
+    DateOnly Birthday,
 
     [Required]
     string PhoneNumber)
