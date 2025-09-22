@@ -4,9 +4,9 @@ using Domain.Models.Contents;
 
 namespace Application.Utils;
 
-public class GenreMapper:IGenreMapper
+public class GenreMapper : IGenreMapper
 {
-    public Genre ToEntity (GenreAddDTO dto)
+    public Genre ToEntity(GenreAddDTO dto)
     {
         return new Genre
         {
@@ -14,11 +14,11 @@ public class GenreMapper:IGenreMapper
             Name = dto.name,
         };
     }
-    public GenreAddDTO ToDTO (Genre genre)
+    public GenreAddDTO ToDTO(Genre genre)
     {
         return new GenreAddDTO(genre.Id, genre.Name);
     }
-    public IEnumerable<Genre> ToEntities (IEnumerable<GenreAddDTO> dtos)
+    public IEnumerable<Genre> ToEntities(IEnumerable<GenreAddDTO> dtos)
     {
         return dtos?.Select(ToEntity) ?? Enumerable.Empty<Genre>();
     }

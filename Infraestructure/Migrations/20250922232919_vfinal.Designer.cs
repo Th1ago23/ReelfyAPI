@@ -12,8 +12,8 @@ using ReelfyAPI.Data;
 namespace Infraestructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250920055951_n")]
-    partial class n
+    [Migration("20250922232919_vfinal")]
+    partial class vfinal
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -88,6 +88,9 @@ namespace Infraestructure.Migrations
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int");
+
+                    b.Property<bool>("AlreadySeen")
+                        .HasColumnType("bit");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
@@ -174,8 +177,8 @@ namespace Infraestructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Age")
-                        .HasColumnType("int");
+                    b.Property<DateOnly>("Birthday")
+                        .HasColumnType("date");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -184,6 +187,9 @@ namespace Infraestructure.Migrations
                         .IsRequired()
                         .HasMaxLength(90)
                         .HasColumnType("nvarchar(90)");
+
+                    b.Property<bool>("IsPreemium")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()

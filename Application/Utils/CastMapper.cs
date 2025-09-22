@@ -4,9 +4,9 @@ using Domain.Models.Contents;
 
 namespace Application.Utils
 {
-    public class CastMapper: ICastMapper
+    public class CastMapper : ICastMapper
     {
-        public Cast ToEntity (CastAddDTO dto)
+        public Cast ToEntity(CastAddDTO dto)
         {
             return new Cast
             {

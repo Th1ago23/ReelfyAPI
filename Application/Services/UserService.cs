@@ -7,17 +7,10 @@ using Application.Interface.UserInterface;
 using Domain.Interface.HttpContext;
 using Domain.Interface.Mappers;
 using Domain.Interface.Repository;
-using Domain.Models.Users;
-using Infraestructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services;
 
-public class UserService:IUserService
+public class UserService : IUserService
 {
     private readonly IUserRepository _context;
     private readonly IContextUser _contextUser;
@@ -134,14 +127,14 @@ public class UserService:IUserService
         return _mapper.ToUserResponseDTO(user);
 
     }
-    public async Task<UserSummaryDTO> TurnPreemium (int id, bool result)
+    public async Task<UserSummaryDTO> TurnPreemium(int id, bool result)
     {
         var user = await _context.GetById(id);
         user.IsPreemium = result;
 
         await _unitOfWork.CommitAsync();
 
-        
+
 
         var castsDTO = user.Preference.Casts.Select(_castMapper.ToDTO);
         var crewsDTO = user.Preference.Crews.Select(_crewMapper.ToDTO);

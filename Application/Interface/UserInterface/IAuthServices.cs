@@ -1,5 +1,4 @@
-﻿using Application.DTO.Content;
-using Application.DTO.Returns;
+﻿using Application.DTO.Returns;
 using Application.DTO.Users;
 
 namespace Application.Interface.UserInterface;

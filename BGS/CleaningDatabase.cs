@@ -1,13 +1,13 @@
-﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Dapper; 
+﻿using Dapper;
 using Microsoft.Data.SqlClient;
-using System.Data;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System.Data;
 
 namespace BGS
 {
-    public class CleaningDatabase:BackgroundService
+    public class CleaningDatabase : BackgroundService
     {
         private readonly ILogger<CleaningDatabase> _logger;
         private readonly IConfiguration _configuration;

@@ -4,9 +4,9 @@ using Domain.Models.Contents;
 
 namespace Application.Utils;
 
-public class CrewMapper:ICrewMapper
+public class CrewMapper : ICrewMapper
 {
-    public Crew ToEntity (CrewAddDTO dto)
+    public Crew ToEntity(CrewAddDTO dto)
     {
         return new Crew
         {
@@ -14,11 +14,11 @@ public class CrewMapper:ICrewMapper
             Name = dto.name,
         };
     }
-    public CrewAddDTO ToDTO (Crew crew)
+    public CrewAddDTO ToDTO(Crew crew)
     {
         return new CrewAddDTO(crew.Id, crew.Name);
     }
-    public IEnumerable<Crew> ToEntities (IEnumerable<CrewAddDTO> dtos)
+    public IEnumerable<Crew> ToEntities(IEnumerable<CrewAddDTO> dtos)
     {
         return dtos?.Select(ToEntity) ?? Enumerable.Empty<Crew>();
     }

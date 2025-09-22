@@ -43,8 +43,9 @@ namespace Infraestructure.Repository
             try
             {
                 _dataContext.Contents.Update(content);
-            
-            }catch(DbException e)
+
+            }
+            catch (DbException e)
             {
                 throw new ApplicationException($"{e.Message}", e);
             }

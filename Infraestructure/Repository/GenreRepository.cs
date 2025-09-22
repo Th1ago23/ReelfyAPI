@@ -5,7 +5,7 @@ using ReelfyAPI.Data;
 
 namespace Infraestructure.Repository;
 
-public class GenreRepository:IGenreRepository
+public class GenreRepository : IGenreRepository
 {
     private readonly DataContext _context;
 

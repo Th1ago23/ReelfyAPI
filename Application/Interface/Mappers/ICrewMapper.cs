@@ -5,7 +5,7 @@ namespace Application.Interface.Mappers;
 
 public interface ICrewMapper
 {
-    public Crew ToEntity (CrewAddDTO dTO);
+    public Crew ToEntity(CrewAddDTO dTO);
     public CrewAddDTO ToDTO(Crew crew);
-    public IEnumerable<Crew> ToEntities (IEnumerable<CrewAddDTO> dtos);
+    public IEnumerable<Crew> ToEntities(IEnumerable<CrewAddDTO> dtos);
 }

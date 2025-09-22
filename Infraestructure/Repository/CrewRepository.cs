@@ -5,7 +5,7 @@ using ReelfyAPI.Data;
 
 namespace Infraestructure.Repository;
 
-public class CrewRepository: ICrewRepository
+public class CrewRepository : ICrewRepository
 {
     private readonly DataContext _context;
 

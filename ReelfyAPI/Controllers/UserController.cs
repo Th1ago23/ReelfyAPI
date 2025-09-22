@@ -1,10 +1,8 @@
 ﻿using Application.DTO.Users;
 using Application.Interface.UserInterface;
-using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReelfyAPI.Application.DTO;
-using System;
 using System.Data.Common;
 
 namespace ReelfyAPI.Controllers;
@@ -29,7 +27,7 @@ public class UserController : ControllerBase
 
         foreach (var user in users)
         {
-            
+
             var userLinks = new List<LinkDTO>{
                 new LinkDTO(
                     Href: Url.Link("GetUserById", new { id = user.id}),
@@ -99,20 +97,22 @@ public class UserController : ControllerBase
         {
             var response = await _userServices.UpdateUser(request);
             return Ok(response);
-        } catch (UnauthorizedAccessException e)
+        }
+        catch (UnauthorizedAccessException e)
         {
             return BadRequest($"Não foi possível atualizar os dados do usuário. Por favor, faça o login e tente novamente.\n {e.Message}");
-        }    
+        }
     }
     [Authorize]
-    [HttpPost("user/markPreemium")]
+    [HttpPost("MarkPreemium")]
     public async Task<IActionResult> MarkPreemium(int userId, bool IsPreemium)
     {
         try
         {
             var response = await _userServices.TurnPreemium(userId, IsPreemium);
             return Ok(response);
-        }catch(DbException e)
+        }
+        catch (DbException e)
         {
             return BadRequest(e.Message);
         }

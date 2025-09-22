@@ -3,13 +3,13 @@ using Application.Interface.ContentInterface;
 using Domain.Interface.HttpContext;
 using Domain.Interface.Repository;
 using Domain.Models.Contents;
-using Infraestructure.HttpAcessor;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Application.Services;
 
 public class ContentService : IContentService
-{   private readonly IUnitOfWork _unitOfWork;
+{
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IUserRepository _userRepository;
     private readonly IContextUser _userInContext;
     private readonly IContentRepository _context;
@@ -67,7 +67,7 @@ public class ContentService : IContentService
         var contents = await _context.FindAll();
         var contentsWithCount = new List<FavoriteCountDTO>();
 
-        foreach(var content in contents)
+        foreach (var content in contents)
         {
             var usersCount = content.User.Count();
             contentsWithCount.Add(new FavoriteCountDTO(content.Title, content.category, content.Id, usersCount));

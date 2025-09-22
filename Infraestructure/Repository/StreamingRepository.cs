@@ -5,7 +5,7 @@ using ReelfyAPI.Data;
 
 namespace Infraestructure.Repository;
 
-public class StreamingRepository: IStreamingRepository
+public class StreamingRepository : IStreamingRepository
 {
     private readonly DataContext _context;
 

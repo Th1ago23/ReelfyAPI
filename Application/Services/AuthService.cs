@@ -1,11 +1,8 @@
-﻿using Application.DTO.Content;
-using Application.DTO.Returns;
+﻿using Application.DTO.Returns;
 using Application.DTO.Users;
 using Application.Interface.UserInterface;
 using Application.Services;
-using Domain.Interface.HttpContext;
 using Domain.Interface.Repository;
-using Microsoft.Extensions.Configuration;
 namespace ReelfyAPI.Services
 {
     public class AuthService : IAuthServices

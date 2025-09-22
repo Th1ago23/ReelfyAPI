@@ -62,7 +62,7 @@ namespace ReelfyAPI.Controllers
         }
         [Authorize]
         [HttpPut("MarkAlreadySeen/{contentId}")]
-        public async Task<IActionResult> MarkSeen (int contentId, bool result)
+        public async Task<IActionResult> MarkSeen(int contentId, bool result)
         {
             try
             {
@@ -76,7 +76,8 @@ namespace ReelfyAPI.Controllers
             catch (NullReferenceException e)
             {
                 return BadRequest("Não foi possível encontrar os dados do usuário ou conteúdo.");
-            }catch(UnauthorizedAccessException e)
+            }
+            catch (UnauthorizedAccessException e)
             {
                 return Unauthorized("Usuário sem permissão. Faça o login novamente.");
             }

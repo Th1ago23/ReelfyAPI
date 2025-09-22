@@ -7,5 +7,5 @@ public interface IGenreMapper
 {
     public Genre ToEntity(GenreAddDTO dto);
     public GenreAddDTO ToDTO(Genre genre);
-    public IEnumerable<Genre> ToEntities (IEnumerable<GenreAddDTO> dtos);
+    public IEnumerable<Genre> ToEntities(IEnumerable<GenreAddDTO> dtos);
 }

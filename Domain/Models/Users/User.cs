@@ -35,7 +35,7 @@ public class User
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 
-    public bool ValidateAge ()
+    public bool ValidateAge()
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
 
@@ -44,7 +44,7 @@ public class User
         if (Birthday > today.AddYears(-age)) age--;
 
         return age >= 16;
-    
+
     }
     public int GetAge()
     {

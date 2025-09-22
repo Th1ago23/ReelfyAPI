@@ -5,7 +5,7 @@ using ReelfyAPI.Data;
 
 namespace Infraestructure.Repository;
 
-public class CastRepository:ICastRepository
+public class CastRepository : ICastRepository
 {
     private readonly DataContext _context;
 

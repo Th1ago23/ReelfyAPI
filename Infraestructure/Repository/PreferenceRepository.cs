@@ -5,7 +5,7 @@ using ReelfyAPI.Data;
 
 namespace Infraestructure.Repository;
 
-public class PreferenceRepository: IPreferenceRepository
+public class PreferenceRepository : IPreferenceRepository
 {
     private DataContext _context;
 
@@ -18,17 +18,18 @@ public class PreferenceRepository: IPreferenceRepository
     {
         await _context.Preferences.AddAsync(preference);
     }
-    public async Task<Preference> GetPreferences(int id)
-    {
-        var preference = await _context
 
-                                    .Preferences
-                                    .Include(i=>i.Crews)
-                                    .Include(i => i.Casts)
-                                    .Include(i => i.Genres)
-                                    .Include(i => i.Streamings)
-                                    .FirstOrDefaultAsync(i => i.Id == id) ?? throw new NullReferenceException();
-        return preference;
+    public async Task<Preference?> GetPreferences(int userId)
+    {
+        if (userId <= 0)
+            return null;
+
+        return await _context.Preferences
+            .Include(i => i.Crews)
+            .Include(i => i.Casts)
+            .Include(i => i.Genres)
+            .Include(i => i.Streamings)
+            .FirstOrDefaultAsync(i => i.UserId == userId);
     }
     public async Task<Preference> GetPreferenceById(int id)
     {
@@ -44,19 +45,19 @@ public class PreferenceRepository: IPreferenceRepository
     {
         var preference = await GetPreferenceById(id) ?? throw new NullReferenceException();
         preference.Casts.Add(cast);
-        
+
     }
     public async Task AddStreaming(int id, Streaming streaming)
     {
         var preference = await GetPreferenceById(id) ?? throw new NullReferenceException();
         preference.Streamings.Add(streaming);
-        
+
     }
     public async Task AddCrew(int id, Crew crew)
     {
         var preference = await GetPreferenceById(id);
         preference.Crews.Add(crew);
-        
+
     }
 
 }

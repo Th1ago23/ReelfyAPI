@@ -7,11 +7,11 @@ namespace ReelfyAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthApiController : ControllerBase
+public class AuthController : ControllerBase
 {
     private readonly IAuthServices _authServices;
 
-    public AuthApiController(IAuthServices authServices)
+    public AuthController(IAuthServices authServices)
     {
         _authServices = authServices;
     }

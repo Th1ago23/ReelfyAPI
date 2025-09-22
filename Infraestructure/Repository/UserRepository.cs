@@ -1,8 +1,6 @@
-﻿using Domain.Interface.HttpContext;
-using Domain.Interface.Repository;
+﻿using Domain.Interface.Repository;
 using Domain.Models.Users;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using ReelfyAPI.Data;
 
 
@@ -88,9 +86,17 @@ namespace Infraestructure.Repository
         {
             var user = await _context
                          .Users
+                         .Include(u => u.Contents)
+                         .Include(i => i.Preference)
+                            .ThenInclude(i => i.Genres)
+                         .Include(i => i.Preference)
+                            .ThenInclude(i => i.Casts)
+                         .Include(i => i.Preference)
+                            .ThenInclude(i => i.Crews)
+                         .Include(i => i.Preference)
+                            .ThenInclude(i => i.Streamings)
                          .FirstOrDefaultAsync(u => u.Id == id)
                          ?? throw new ArgumentNullException();
-
             return user;
         }
 
@@ -100,7 +106,6 @@ namespace Infraestructure.Repository
                                 .Users
                                 .FirstOrDefaultAsync(u => u.Email == email) ??
                                 throw new ArgumentNullException();
-
             return user;
         }
 
@@ -128,14 +133,11 @@ namespace Infraestructure.Repository
 
             user.UpdatedAt = DateTime.UtcNow;
         }
-
         public void Delete(User user)
         {
             _context.Users
                 .Remove(user);
-
         }
-
         public async Task<bool> UserExists(string email)
         {
             return await _context

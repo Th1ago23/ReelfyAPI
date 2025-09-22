@@ -1,22 +1,20 @@
-﻿using Domain.Interface.HttpContext;
-using Domain.Interface.Repository;
-using Domain.Models.Contents;
+﻿using Domain.Interface.Repository;
 using Infraestructure.Repository;
 using ReelfyAPI.Data;
 
 namespace Infraestructure.Data;
 
-public class UnitOfWork: IUnitOfWork
+public class UnitOfWork : IUnitOfWork
 {
     private readonly DataContext _context;
-    
-    public ICastRepository Cast { get;}
+
+    public ICastRepository Cast { get; }
     public ICrewRepository Crew { get; }
-    public IGenreRepository Genre{ get; }
+    public IGenreRepository Genre { get; }
     public IPreferenceRepository Preference { get; }
-    public IContentRepository Content{ get; }
-    public IStreamingRepository Streaming{ get; }
-    public IUserRepository User{ get; }
+    public IContentRepository Content { get; }
+    public IStreamingRepository Streaming { get; }
+    public IUserRepository User { get; }
 
     public UnitOfWork(DataContext context)
     {
