@@ -30,7 +30,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IContentRepository, ContentRepository>();
 builder.Services.AddScoped<IContentService, ContentService>();
 builder.Services.AddScoped<IMemoryCache, MemoryCache>();
-builder.Services.AddScoped<JwtFunctions, JwtFunctions>();
+builder.Services.AddScoped<JwtService, JwtService>();
 builder.Services.AddScoped<IUserMapper, UserMapper>();
 builder.Services.AddScoped<IContentMapper, ContentMapper>();
 builder.Services.AddScoped<ICastMapper, CastMapper>();
@@ -45,6 +45,7 @@ builder.Services.AddScoped<IGenreMapper, GenreMapper>();
 builder.Services.AddScoped<IStreamingRepository, StreamingRepository>();
 builder.Services.AddScoped<ICrewRepository, CrewRepository>();
 builder.Services.AddScoped<ICastRepository, CastRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddHostedService<CleaningDatabase>();
 builder.Services.AddHttpContextAccessor();
