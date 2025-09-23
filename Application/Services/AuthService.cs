@@ -26,6 +26,8 @@ namespace ReelfyAPI.Services
             var userEntity = _mapper.ToUser(user);
             if (!userEntity.ValidateAge()) throw new AccessViolationException("Apenas usuários acima de 10 anos podem se cadastrar");
 
+            if (await _context.UserExists(userEntity.Email)) throw new ArgumentException();
+
             _jwtService.CreatePasswordHash(user.Password, out byte[] passwordHash, out byte[] passwordSalt);
             userEntity.PasswordHash = passwordHash;
             userEntity.PasswordSalt = passwordSalt;

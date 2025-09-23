@@ -84,8 +84,8 @@ public class PreferenceService : IPreferenceService
         return new PreferenceResponseDTO(
             preference.UserId,
             preference.Id,
-            preference.Casts.Select(c => new CastAddDTO(c.Id, c.Name)),
-            preference.Crews.Select(c => new CrewAddDTO(c.Id, c.Name)),
+            preference.Casts.Select(c => new CastAddDTO(c.Id, c.Name, c.ProfilePath)),
+            preference.Crews.Select(c => new CrewAddDTO(c.Id, c.Name, c.ProfilePath)),
             preference.Genres.Select(g => new GenreAddDTO(g.Id, g.Name)),
             preference.Streamings.Select(s => new StreamingAddDTO(s.Id, s.Name))
         );
