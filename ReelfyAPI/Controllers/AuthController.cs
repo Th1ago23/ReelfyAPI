@@ -1,6 +1,7 @@
 ﻿using Application.DTO.Users;
 using Application.Interface.UserInterface;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
 using ReelfyAPI.Application.DTO;
 
 namespace ReelfyAPI.Controllers;
@@ -28,7 +29,6 @@ public class AuthController : ControllerBase
             var response = new
             {
                 data = createdUser,
-                tokenRegister = token,
                 links = new List<LinkDTO>
             {
                 new LinkDTO(Url.Link("GetUserById", new { id = createdUser.userResponseDTO.Id }), "self", "GET", "Detalhes do usuário", "application/json"),
@@ -41,7 +41,10 @@ public class AuthController : ControllerBase
         }
         catch (NullReferenceException e)
         {
-            return BadRequest(e.Message);
+            return BadRequest("É necessário preencher todas as informações para realizar o cadastro.");
+        }catch (ArgumentException e)
+        {
+            return BadRequest("O e-mail enviado já possui cadastro.");
         }
     }
 
@@ -54,12 +57,10 @@ public class AuthController : ControllerBase
         try
         {
             var user = await _authServices.Login(request);
-            var token = user.token;
             var response = new
             {
                 data = user,
                 nameLogin = user.userResponseDTO.name,
-                tokenLogin = token,
                 links = new List<LinkDTO>
             {
                 new LinkDTO(Url.Link("GetUserById", new { id = user.userResponseDTO.Id }), "self", "GET", "Detalhes do usuário", "application/json"),
