@@ -8,6 +8,7 @@ public class Crew
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
+    public string ProfilePath { get; set; } = string.Empty;
     public ICollection<Preference> Preferences { get; set; } = new List<Preference>();
 
 }

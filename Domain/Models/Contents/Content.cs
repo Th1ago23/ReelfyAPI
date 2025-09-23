@@ -10,10 +10,10 @@ public class Content
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int Id { get; set; }
-    public string Title { get; set; }
-    public Category category { get; set; }
-    public string ImageUrl { get; set; }
-    public bool AlreadySeen { get; set; } = false;
+    public string? Title { get; set; }
+    public Category? category { get; set; }
+    public string? ImageUrl { get; set; }
+    public bool? AlreadySeen { get; set; } = false;
 
     public ICollection<User> User { get; set; } = new List<User>();
 
