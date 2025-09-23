@@ -1,5 +1,5 @@
 ﻿namespace Application.DTO.Content.Preferences;
 
-public record CastAddDTO(int id, string name)
+public record CastAddDTO(int id, string name, string profilePath)
 {
 }
