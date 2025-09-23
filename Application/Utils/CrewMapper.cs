@@ -16,7 +16,7 @@ public class CrewMapper : ICrewMapper
     }
     public CrewAddDTO ToDTO(Crew crew)
     {
-        return new CrewAddDTO(crew.Id, crew.Name);
+        return new CrewAddDTO(crew.Id, crew.Name, crew.ProfilePath);
     }
     public IEnumerable<Crew> ToEntities(IEnumerable<CrewAddDTO> dtos)
     {

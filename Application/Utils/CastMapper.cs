@@ -16,7 +16,7 @@ namespace Application.Utils
         }
         public CastAddDTO ToDTO(Cast cast)
         {
-            return new CastAddDTO(cast.Id, cast.Name);
+            return new CastAddDTO(cast.Id, cast.Name, cast.ProfilePath);
         }
 
         public IEnumerable<Cast> ToEntities(IEnumerable<CastAddDTO> dtos)
