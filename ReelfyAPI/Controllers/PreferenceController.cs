@@ -29,6 +29,9 @@ namespace ReelfyAPI.Controllers
             catch (UnauthorizedAccessException e)
             {
                 return Unauthorized(e);
+            }catch(ArgumentException e)
+            {
+                return BadRequest(e.Message);
             }
         }
         [Authorize]

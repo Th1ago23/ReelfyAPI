@@ -27,7 +27,7 @@ public class User
     public byte[] PasswordSalt { get; set; }
 
     [Required]
-    public string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
 
     public ICollection<Content> Contents { get; set; } = new List<Content>();
     public Preference Preference { get; set; } = new Preference();

@@ -29,4 +29,8 @@ public class GenreRepository : IGenreRepository
         _context.Genres.Remove(genre);
         await _context.SaveChangesAsync();
     }
+    public async Task<Genre> FindById(int id)
+    {
+        return await Find().FirstOrDefaultAsync(i => i.Id == id);
+    }
 }

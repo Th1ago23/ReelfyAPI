@@ -16,7 +16,7 @@ namespace Application.DTO.Users
     DateOnly Birthday,
 
     [Required]
-    string PhoneNumber)
+    string? PhoneNumber)
     { }
 
 }

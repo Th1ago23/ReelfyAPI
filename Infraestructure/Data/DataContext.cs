@@ -44,6 +44,11 @@ namespace ReelfyAPI.Data
             modelBuilder.Entity<Preference>()
                 .HasMany(p => p.Streamings)
                 .WithMany(s => s.Preferences);
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Preference)
+                .WithOne(p => p.User)
+                .HasForeignKey<Preference>(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

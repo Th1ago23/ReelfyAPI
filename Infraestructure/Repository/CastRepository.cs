@@ -24,4 +24,9 @@ public class CastRepository : ICastRepository
         var cast = await _context.Casts.FirstOrDefaultAsync(i => i.Id == id) ?? throw new NullReferenceException();
         _context.Casts.Remove(cast);
     }
+    public async Task<Cast> Find(int id)
+    {
+        var cast = await _context.Casts.FirstOrDefaultAsync(i => i.Id == id);
+        return cast;
+    }
 }

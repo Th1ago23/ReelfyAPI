@@ -16,14 +16,18 @@ public class CrewRepository : ICrewRepository
 
     public async Task Add(Crew crew)
     {
-        await _context.Crews.AddAsync(crew);
         await _context.SaveChangesAsync();
+        await _context.Crews.AddAsync(crew);
     }
     public async Task Delete(int id)
     {
         var crew = await _context.Crews.FirstOrDefaultAsync(i => i.Id == id) ?? throw new NullReferenceException();
         _context.Crews.Remove(crew);
         await _context.SaveChangesAsync();
+    }
+    public async Task<Crew> Find (int id)
+    {
+        return await _context.Crews.FirstOrDefaultAsync(i => i.Id == id);
     }
 
 }

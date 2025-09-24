@@ -6,4 +6,5 @@ public interface IStreamingRepository
 {
     public Task Add(Streaming streaming);
     public Task Delete(int id);
+    public Task<Streaming> Find(int id);
 }

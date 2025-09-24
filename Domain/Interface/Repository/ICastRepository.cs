@@ -6,5 +6,6 @@ namespace Domain.Interface.Repository
     {
         public Task Add(Cast cast);
         public Task Delete(int id);
+        public Task<Cast> Find(int id);
     }
 }

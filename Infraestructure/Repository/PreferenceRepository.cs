@@ -2,6 +2,7 @@
 using Domain.Models.Contents;
 using Microsoft.EntityFrameworkCore;
 using ReelfyAPI.Data;
+using System.Data.Common;
 
 namespace Infraestructure.Repository;
 
@@ -16,7 +17,20 @@ public class PreferenceRepository : IPreferenceRepository
 
     public async Task Add(Preference preference)
     {
-        await _context.Preferences.AddAsync(preference);
+        try
+        {
+            await _context.Preferences.AddAsync(preference);
+        }catch(NullReferenceException e)
+        {
+            throw new NullReferenceException(e.Message);
+        }catch(ArgumentException e)
+        {
+            throw new ArgumentException(e.Message);
+        }catch(DbException e)
+        {
+            throw new Exception(e.Message);
+        }
+        
     }
 
     public async Task<Preference?> GetPreferences(int userId)

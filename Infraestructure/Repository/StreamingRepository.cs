@@ -23,4 +23,9 @@ public class StreamingRepository : IStreamingRepository
         var stream = await _context.Streamings.FirstOrDefaultAsync(i => i.Id == id);
         await _context.SaveChangesAsync();
     }
+    public async Task<Streaming> Find(int id)
+    {
+        return await _context.Streamings.FirstOrDefaultAsync(i => i.Id == id);
+    }
+
 }

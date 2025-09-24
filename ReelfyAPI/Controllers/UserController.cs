@@ -65,19 +65,40 @@ public class UserController : ControllerBase
     public async Task<IActionResult> DeleteUser(int id)
     {
         var user = await _userServices.GetUserById(id);
+
+        if (user == null)
+        {
+            return NotFound(new { message = "Usuário não encontrado!" });
+        }
+
+        await _userServices.DeleteUser(id);
+
         var response = new
         {
-            data = user,
+            message = "Usuário deletado com sucesso!",
+            deletedUser = user,
             links = new List<LinkDTO>
-            {
-                new LinkDTO(Url.Link("GetUserById", new { id = user.id }), "self", "GET", "Detalhes do usuário", "application/json"),
-                new LinkDTO(Url.Link("UpdateUser", new { id = user.id }), "update", "PUT", "Atualizar usuário"),
-                new LinkDTO(Url.Link("DeleteUser", new { id = user.id }), "delete", "DELETE", "Deletar usuário")
-            }
+        {
+            new LinkDTO(
+                Href: Url.Link("GetAllUsers", null),
+                Rel: "all-users",
+                Method: "GET",
+                Title: "Obter todos os usuários",
+                Type: "application/json"
+            ),
+            new LinkDTO(
+                Href: Url.Link("GetUserById", new { id = user.id }),
+                Rel: "details",
+                Method: "GET",
+                Title: "Obter detalhes do usuário deletado",
+                Type: "application/json"
+            )
+        }
         };
-        await _userServices.DeleteUser(id);
+
         return Ok(response);
     }
+
     [HttpGet("{id}", Name = "GetUserById")]
     public async Task<IActionResult> GetUserById(int id)
     {

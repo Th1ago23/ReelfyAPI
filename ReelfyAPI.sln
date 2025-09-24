@@ -5,13 +5,15 @@ VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReelfyAPI", "ReelfyAPI\ReelfyAPI.csproj", "{E90C8473-E2DA-46DC-A2AF-B9A3070BAF0D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infraestructure", "Infraestructure\Infraestructure.csproj", "{B9DAD414-FDD7-4CA0-AB69-BEA3934AAABA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infraestructure\Infrastructure.csproj", "{B9DAD414-FDD7-4CA0-AB69-BEA3934AAABA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{842658AE-4D84-4236-B25C-00664F9D4F20}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{364CE67C-81AB-4D5C-85DA-8946EDB6742D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BGS", "BGS\BGS.csproj", "{A06E5503-2AB3-445B-BE34-6247F9AF5580}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F9B81398-A9CB-4F8C-AF8E-40A842845DAF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,6 +44,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E90C8473-E2DA-46DC-A2AF-B9A3070BAF0D} = {F9B81398-A9CB-4F8C-AF8E-40A842845DAF}
+		{B9DAD414-FDD7-4CA0-AB69-BEA3934AAABA} = {F9B81398-A9CB-4F8C-AF8E-40A842845DAF}
+		{842658AE-4D84-4236-B25C-00664F9D4F20} = {F9B81398-A9CB-4F8C-AF8E-40A842845DAF}
+		{364CE67C-81AB-4D5C-85DA-8946EDB6742D} = {F9B81398-A9CB-4F8C-AF8E-40A842845DAF}
+		{A06E5503-2AB3-445B-BE34-6247F9AF5580} = {F9B81398-A9CB-4F8C-AF8E-40A842845DAF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B7580A8F-0430-42B0-86AE-08F8829C9DE7}
