@@ -1,12 +1,13 @@
 ﻿using Application.DTO.Returns;
 using Application.DTO.Users;
+using ReelfyAPI.Models;
 
 namespace Application.Interface.UserInterface;
 
 public interface IAuthServices
 {
-    public Task<ResponseRequestDTO?> Register(UserRegisterDTO userDto);
+    public Task<Response<ResponseRequestDTO>> Register(UserRegisterDTO userDto);
 
-    public Task<ResponseRequestDTO?> Login(UserLoginDTO loginDto);
-    public Task<UserResponseDTO?> UpdatePassword(UpdatePasswordDTO update, string newPassword);
+    public Task<Response<UserResponseLoginDTO?>> Login(UserLoginDTO loginDto);
+    public Task<Response<UserResponseDTO>> UpdatePassword(UpdatePasswordDTO update, string newPassword);
 }

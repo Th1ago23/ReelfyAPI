@@ -1,8 +1,13 @@
-﻿using Application.DTO.Returns;
+﻿using Application.DTO.Content.Preferences;
+using Application.DTO.Returns;
 using Application.DTO.Users;
+using Application.Interface.Mappers;
 using Application.Interface.UserInterface;
 using Application.Services;
+using Domain.Interface.Mappers;
 using Domain.Interface.Repository;
+using Domain.Models.Contents;
+using ReelfyAPI.Models;
 namespace ReelfyAPI.Services
 {
     public class AuthService : IAuthServices
@@ -12,21 +17,32 @@ namespace ReelfyAPI.Services
         private readonly IUserMapper _mapper;
         private readonly JwtService _jwtService;
 
-        public AuthService(IUserRepository context, IUserMapper mapper, JwtService jwtFunctions, IUnitOfWork unitOfWork)
+        public AuthService(IUnitOfWork unitOfWork, IUserRepository context, IUserMapper mapper, JwtService jwtService)
         {
+            _unitOfWork = unitOfWork;
             _context = context;
             _mapper = mapper;
-            _jwtService = jwtFunctions;
-            _unitOfWork = unitOfWork;
+            _jwtService = jwtService;
         }
 
-        public async Task<ResponseRequestDTO> Register(UserRegisterDTO user)
+        public async Task<Response<ResponseRequestDTO>> Register(UserRegisterDTO user)
         {
-            if (user == null) throw new NullReferenceException("Necessário inserir todos os dados");
-            var userEntity = _mapper.ToUser(user);
-            if (!userEntity.ValidateAge()) throw new AccessViolationException("Apenas usuários acima de 10 anos podem se cadastrar");
+            if (user == null)
+            {
+                return new Response<ResponseRequestDTO>(null, "É necessário inserir todos os dados.", 400);
+            }
 
-            if (await _context.UserExists(userEntity.Email)) throw new ArgumentException();
+            var userEntity = _mapper.ToUser(user);
+
+            if (!userEntity.ValidateAge())
+            {
+                return new Response<ResponseRequestDTO>(null, "Apenas usuários acima de 10 anos podem se cadastrar.", 400);
+            }
+
+            if (await _context.UserExists(userEntity.Email))
+            {
+                return new Response<ResponseRequestDTO>(null, "Já existe um usuário cadastrado com este e-mail.", 409);
+            }
 
             _jwtService.CreatePasswordHash(user.Password, out byte[] passwordHash, out byte[] passwordSalt);
             userEntity.PasswordHash = passwordHash;
@@ -35,38 +51,58 @@ namespace ReelfyAPI.Services
             await _context.Add(userEntity);
             await _unitOfWork.CommitAsync();
 
+            var responseData = _mapper.ToUserResponseDTO(userEntity);
+            var token = _jwtService.CreateToken(responseData);
+            var result = new ResponseRequestDTO(responseData, token);
 
-            var response = _mapper.ToUserResponseDTO(userEntity);
-            var token = _jwtService.CreateToken(response);
-
-            return new ResponseRequestDTO(response, token);
+            return new Response<ResponseRequestDTO>(result, "Cadastro realizado com sucesso!", 201);
         }
-        public async Task<ResponseRequestDTO> Login(UserLoginDTO userDTO)
+        public async Task<Response<UserResponseLoginDTO>> Login(UserLoginDTO userDTO)
         {
             var user = await _context.GetByEmail(userDTO.Email);
-            if (user == null) throw new NullReferenceException("E-mail ou senha inválidos. Verifique se já possui uma conta");
-            if (!_jwtService.VerifyPasswordHash(userDTO.Password, user.PasswordHash, user.PasswordSalt)) throw new ArgumentException("E-mail ou senha inválidos. Verifique se já possui uma conta");
 
-            var response = _mapper.ToUserResponseDTO(user);
-            var token = _jwtService.CreateToken(response);
+            if (user == null || !_jwtService.VerifyPasswordHash(userDTO.Password, user.PasswordHash, user.PasswordSalt))
+            {
+                return new Response<UserResponseLoginDTO>(null, "E-mail ou senha inválidos. Verifique se já possui uma conta.", 401);
+            }
 
-            return new ResponseRequestDTO(response, token);
+            var responseData = _mapper.ToUserResponseDTO(user);
+            var token = _jwtService.CreateToken(responseData);
+
+            var preferenceResponse = new PreferenceResponseDTO(
+            user.Preference.UserId,
+            user.Preference.Id,
+            user.Preference.Casts.Select(c => new CastAddDTO(c.Id, c.Name, c.ProfilePath)),
+            user.Preference.Crews.Select(c => new CrewAddDTO(c.Id, c.Name, c.ProfilePath)),
+            user.Preference.Genres.Select(g => new GenreAddDTO(g.Id, g.Name)),
+            user.Preference.Streamings.Select(s => new StreamingAddDTO(s.Id, s.Name))
+            );
+
+            var result = new UserResponseLoginDTO(responseData, token, preferenceResponse);
+
+            return new Response<UserResponseLoginDTO>(result, "Login bem-sucedido!", 200);
         }
 
-        public async Task<UserResponseDTO> UpdatePassword(UpdatePasswordDTO updateDTO, string newPassword)
-        {
-            var user = await _context
-                .GetByEmail(updateDTO.Email)
-                ?? throw new NullReferenceException("Usuário não encontrado.");
 
-            if (_jwtService.VerifyPasswordHash(updateDTO.CurrentPassword, user.PasswordHash, user.PasswordSalt) == false)
+        public async Task<Response<UserResponseDTO>> UpdatePassword(UpdatePasswordDTO updateDTO, string newPassword)
+        {
+            var user = await _context.GetByEmail(updateDTO.Email);
+
+            if (user == null)
             {
-                throw new ArgumentException("Senha atual inválida.");
+                return new Response<UserResponseDTO>(null, "Usuário não encontrado.", 404);
             }
-            else if (string.IsNullOrEmpty(updateDTO.CurrentPassword) || string.IsNullOrEmpty(updateDTO.NewPassword))
+
+            if (!_jwtService.VerifyPasswordHash(updateDTO.CurrentPassword, user.PasswordHash, user.PasswordSalt))
             {
-                throw new NullReferenceException("Não foi possível alterar a senha.");
+                return new Response<UserResponseDTO>(null, "Senha atual inválida.", 401);
             }
+
+            if (string.IsNullOrEmpty(updateDTO.CurrentPassword) || string.IsNullOrEmpty(updateDTO.NewPassword))
+            {
+                return new Response<UserResponseDTO>(null, "Não foi possível alterar a senha. As senhas não podem ser nulas ou vazias.", 400);
+            }
+
             _jwtService.CreatePasswordHash(newPassword, out byte[] passwordHash, out byte[] passwordSalt);
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
@@ -74,8 +110,9 @@ namespace ReelfyAPI.Services
             _context.Update(user);
             await _unitOfWork.CommitAsync();
 
+            var result = _mapper.ToUserResponseDTO(user);
 
-            return _mapper.ToUserResponseDTO(user);
+            return new Response<UserResponseDTO>(result, "Senha alterada com sucesso!", 200);
         }
     }
 }

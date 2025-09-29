@@ -4,6 +4,7 @@ using Domain.Interface.HttpContext;
 using Domain.Interface.Repository;
 using Domain.Models.Contents;
 using Microsoft.Extensions.Caching.Memory;
+using ReelfyAPI.Models;
 
 namespace Application.Services;
 
@@ -26,40 +27,57 @@ public class ContentService : IContentService
         _context = context;
     }
 
-    public async Task<FavoriteContentDTO> Favorite(FavoriteContentDTO favoritecontentDTO)
+    public async Task<Response<FavoriteContentDTO>> Favorite(FavoriteContentDTO favoriteContentDTO)
     {
-        if (favoritecontentDTO is null) throw new ArgumentException("O objeto de filme favorito não pode ser nulo.");
+        if (favoriteContentDTO is null)
+        {
+            return new Response<FavoriteContentDTO>(null, "O objeto de conteúdo favorito não pode ser nulo.", 400);
+        }
 
         var user = await _userRepository.GetById(_userInContext.Id);
 
-        var content = _mapper.ToEntity(favoritecontentDTO);
+        var content = _mapper.ToEntity(favoriteContentDTO);
 
-        if (user.Contents is null) user.Contents = new List<Content>();
-        if (user.Contents.Contains(content)) throw new ArgumentException("Este livro já foi favoritado");
+        if (user.FavoriteContents is null) user.FavoriteContents = new List<Content>();
 
-        user.Contents.Add(content);
+        if (user.FavoriteContents.Any(c => c.Id == content.Id))
+        {
+            return new Response<FavoriteContentDTO>(null, "Este conteúdo já foi favoritado.", 409);
+        }
+
+        user.FavoriteContents.Add(content);
 
         await _context.Add(content, user);
         await _unitOfWork.CommitAsync();
 
         _cache.Remove($"UserFavorites_{user.Id}");
 
-        return favoritecontentDTO;
-
+        return new Response<FavoriteContentDTO>(favoriteContentDTO, "Conteúdo favoritado com sucesso!", 200);
     }
 
-    public async Task<bool> Unfavorite(int id)
+    public async Task<Response<bool>> Unfavorite(int id)
     {
         var user = await _userRepository.GetById(_userInContext.Id);
 
-        if (user is null) throw new UnauthorizedAccessException("Usuário sem permissão");
+        if (user is null)
+        {
+            return new Response<bool>(false, "Usuário não autenticado. Faça Login novamente.", 404);
+        }
 
-        var contentToRemove = user.Contents.FirstOrDefault(i => i.Id == id);
+        var contentToRemove = user.FavoriteContents.FirstOrDefault(i => i.Id == id);
 
-        if (contentToRemove != null) user.Contents.Remove(contentToRemove);
+        if (contentToRemove is null)
+        {
+            return new Response<bool>(false, "Conteúdo não encontrado na sua lista de favoritos.", 404);
+        }
+
+        user.FavoriteContents.Remove(contentToRemove);
 
         await _unitOfWork.CommitAsync();
-        return true;
+
+        _cache.Remove($"UserFavorites_{user.Id}");
+
+        return new Response<bool>(true, "Conteúdo desfavoritado com sucesso!", 200);
     }
 
     public async Task<IEnumerable<FavoriteCountDTO>> CountContents()
@@ -69,25 +87,36 @@ public class ContentService : IContentService
 
         foreach (var content in contents)
         {
-            var usersCount = content.User.Count();
+            var usersCount = content.FavoritedByUsers?.Count() ?? 0;
             contentsWithCount.Add(new FavoriteCountDTO(content.Title, content.category, content.Id, usersCount));
         }
         return contentsWithCount;
     }
 
-    public async Task<FavoriteContentDTO> MarkAlreadySeen(int id, bool result)
+
+    public async Task<Response<FavoriteContentDTO>> MarkAlreadySeen(int id, bool result)
     {
-        var content = await _context.Find(id);
         var user = await _userRepository.GetById(_userInContext.Id);
 
-        if (!user.Contents.Any(i => i.Id == content.Id)) throw new UnauthorizedAccessException("Conteúdo não disponível");
+        if (user is null)
+        {
+            return new Response<FavoriteContentDTO>(null, "Usuário não autenticado. Faça Login novamente.", 404);
+        }
+
+        var content = user.FavoriteContents.FirstOrDefault(c => c.Id == id);
+
+        if (content is null)
+        {
+            return new Response<FavoriteContentDTO>(null, "O conteúdo não está na sua lista de favoritos.", 404);
+        }
 
         content.AlreadySeen = result;
 
         _context.Update(content);
         await _unitOfWork.CommitAsync();
 
-        return new FavoriteContentDTO(content.Id, content.Title, content.category, content.ImageUrl, content.AlreadySeen);
+        var updatedContentDTO = new FavoriteContentDTO(content.Id, content.Title, content.category, content.ImageUrl, content.AlreadySeen);
 
+        return new Response<FavoriteContentDTO>(updatedContentDTO, "Conteúdo atualizado com sucesso!", 200);
     }
 }

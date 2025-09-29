@@ -7,6 +7,7 @@ using Application.Interface.UserInterface;
 using Domain.Interface.HttpContext;
 using Domain.Interface.Mappers;
 using Domain.Interface.Repository;
+using ReelfyAPI.Models;
 
 namespace Application.Services;
 
@@ -47,7 +48,7 @@ public class UserService : IUserService
 
         var preference = new PreferenceResponseDTO(user.Id, user.Preference.Id, castsDTO, crewsDTO, genresDTO, streamingsDTO);
 
-        return new UserSummaryDTO(user.Id, user.Name, user.GetAge(), user.PhoneNumber, preference, user.Contents.Select(_contentMapper.ToDTO), user.IsPreemium);
+        return new UserSummaryDTO(user.Id, user.Name, user.GetAge(), user.PhoneNumber, preference, user.FavoriteContents.Select(_contentMapper.ToDTO), user.IsPreemium);
     }
 
     public async Task<UserSummaryDTO> GetUserByEmail(string email)
@@ -59,7 +60,7 @@ public class UserService : IUserService
         var genresDTO = user.Preference.Genres.Select(_genreMapper.ToDTO);
         var streamingsDTO = user.Preference.Streamings.Select(_streamingMapper.ToDTO);
         var preference = new PreferenceResponseDTO(user.Id, user.Preference.Id, castsDTO, crewsDTO, genresDTO, streamingsDTO);
-        return new UserSummaryDTO(user.Id, user.Name, user.GetAge(), user.PhoneNumber, preference, user.Contents.Select(_contentMapper.ToDTO), user.IsPreemium);
+        return new UserSummaryDTO(user.Id, user.Name, user.GetAge(), user.PhoneNumber, preference, user.FavoriteContents.Select(_contentMapper.ToDTO), user.IsPreemium);
     }
     public async Task<IEnumerable<UserSummaryDTO>> GetAllUsers()
     {
@@ -75,7 +76,7 @@ public class UserService : IUserService
             var streamingsDTO = user.Preference.Streamings.Select(_streamingMapper.ToDTO);
             var preference = new PreferenceResponseDTO(user.Id, user.Preference.Id, castsDTO, crewsDTO, genresDTO, streamingsDTO);
 
-            var dto = new UserSummaryDTO(user.Id, user.Name, user.GetAge(), user.PhoneNumber, preference, user.Contents.Select(_contentMapper.ToDTO), user.IsPreemium);
+            var dto = new UserSummaryDTO(user.Id, user.Name, user.GetAge(), user.PhoneNumber, preference, user.FavoriteContents.Select(_contentMapper.ToDTO), user.IsPreemium);
 
             listDTO.Add(dto);
         }
@@ -134,8 +135,6 @@ public class UserService : IUserService
 
         await _unitOfWork.CommitAsync();
 
-
-
         var castsDTO = user.Preference.Casts.Select(_castMapper.ToDTO);
         var crewsDTO = user.Preference.Crews.Select(_crewMapper.ToDTO);
         var genresDTO = user.Preference.Genres.Select(_genreMapper.ToDTO);
@@ -143,7 +142,13 @@ public class UserService : IUserService
 
         var preference = new PreferenceResponseDTO(user.Id, user.Preference.Id, castsDTO, crewsDTO, genresDTO, streamingsDTO);
 
-        return new UserSummaryDTO(user.Id, user.Name, user.GetAge(), user.PhoneNumber, preference, user.Contents.Select(_contentMapper.ToDTO), user.IsPreemium);
+        return new UserSummaryDTO(user.Id, user.Name, user.GetAge(), user.PhoneNumber, preference, user.FavoriteContents.Select(_contentMapper.ToDTO), user.IsPreemium);
 
+    }
+
+    public async Task<Response<ContentsListResponseDTO>> ListCreate(ContentsListDTO dto)
+    {
+        var user = await _context.GetById(_contextUser.Id);
+        if (user.ContentLists.Any(i => i.Name == dto.name)) return new Response<ContentsListResponseDTO>(null, "Já existe uma lista com este nome", 401);
     }
 }

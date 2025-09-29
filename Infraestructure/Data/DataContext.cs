@@ -16,19 +16,18 @@ namespace ReelfyAPI.Data
         public DbSet<Cast> Casts { get; set; }
         public DbSet<Streaming> Streamings { get; set; }
         public DbSet<Genre> Genres { get; set; }
+        public DbSet<ContentsList> ContentsLists { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // 1:1 User → Preference sem cascade delete automático
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Preference)
                 .WithOne(p => p.User)
                 .HasForeignKey<Preference>(p => p.UserId)
-                .OnDelete(DeleteBehavior.Restrict); // evita múltiplos caminhos de cascade
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // N:N automático (EF Core 5+ cria tabelas de junção)
             modelBuilder.Entity<Preference>()
                 .HasMany(p => p.Casts)
                 .WithMany(c => c.Preferences);
@@ -49,6 +48,15 @@ namespace ReelfyAPI.Data
                 .WithOne(p => p.User)
                 .HasForeignKey<Preference>(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ContentsList>()
+                .HasOne(ucl => ucl.User)
+                .WithMany(u => u.ContentLists)
+                .HasForeignKey(ucl => ucl.UserId);
+
+            modelBuilder.Entity<ContentsList>()
+                .HasMany(ucl => ucl.Contents)
+                .WithMany(c => c.InUserContentLists);
         }
     }
 }

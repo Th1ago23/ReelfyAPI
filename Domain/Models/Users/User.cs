@@ -29,7 +29,8 @@ public class User
     [Required]
     public string? PhoneNumber { get; set; }
 
-    public ICollection<Content> Contents { get; set; } = new List<Content>();
+    public ICollection<Content> FavoriteContents { get; set; } = new List<Content>();
+    public ICollection<ContentsList> ContentLists { get; set; } = new List<ContentsList>();
     public Preference Preference { get; set; } = new Preference();
 
     public DateTime? CreatedAt { get; set; }

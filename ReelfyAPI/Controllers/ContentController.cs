@@ -52,11 +52,12 @@ namespace ReelfyAPI.Controllers
 
         [Authorize]
         [HttpPost("RemoveFavorite/{id}", Name = ("RemoveFavorite"))]
-        public async Task<IActionResult> Removecontent(int id)
+        public async Task<IActionResult> RemoveContent(int id)
         {
-            var result = await _contentService.Unfavorite(id);
+            var response = await _contentService.Unfavorite(id);
 
-            if (result != true) return BadRequest("Erro ao remover favorito");
+            if (response is null || !response.Success)
+                return BadRequest(response?.Message ?? "Erro ao remover favorito");
 
             return Ok("Filme desfavoritado com sucesso.");
         }

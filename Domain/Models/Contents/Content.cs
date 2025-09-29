@@ -15,7 +15,8 @@ public class Content
     public string? ImageUrl { get; set; }
     public bool? AlreadySeen { get; set; } = false;
 
-    public ICollection<User> User { get; set; } = new List<User>();
+    public ICollection<User> FavoritedByUsers { get; set; } = new List<User>();
+    public ICollection<ContentsList> InUserContentLists { get; set; } = new List<ContentsList>();
 
     public Content() { }
 
@@ -25,7 +26,7 @@ public class Content
         this.Title = Title;
         this.category = category;
         this.ImageUrl = ImageUrl;
-        User = user;
+        FavoritedByUsers = user;
 
     }
 
