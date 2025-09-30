@@ -2,16 +2,13 @@
 using Application.Interface.UserInterface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ReelfyAPI.Application.DTO;
-using System.Data.Common;
 
 namespace ReelfyAPI.Controllers;
+
 [Route("api/[controller]")]
 [ApiController]
-
 public class UserController : ControllerBase
 {
-
     private readonly IUserService _userServices;
 
     public UserController(IUserService userServices)
@@ -19,123 +16,83 @@ public class UserController : ControllerBase
         _userServices = userServices;
     }
 
-    [HttpGet("getallusers", Name = "GetAllUsers")]
+    [HttpGet("getallusers")]
     public async Task<IActionResult> GetAllUsers()
     {
-        var users = await _userServices.GetAllUsers();
-        var updatedUsers = new List<UserSummaryDTO>();
+        var serviceResponse = await _userServices.GetAllUsers();
 
-        foreach (var user in users)
+        if (!serviceResponse.Success)
         {
-
-            var userLinks = new List<LinkDTO>{
-                new LinkDTO(
-                    Href: Url.Link("GetUserById", new { id = user.id}),
-                    Rel: "self",
-                    Method: "GET",
-                    Title: "Obter usuário por ID",
-                    Type: "application/json"
-                ),
-
-                new LinkDTO(
-                    Href: Url.Link("Register", null),
-                    Rel: "register",
-                    Method: "POST",
-                    Title: "Registrar novo usuário",
-                    Type: "application/json"
-                ),
-
-                new LinkDTO(
-                    Href: Url.Link("Login", null),
-                    Rel: "login",
-                    Method: "POST",
-                    Title: "Fazer login",
-                    Type: "application/json"
-                )
-            };
-
-            var updatedUser = user with { Links = userLinks };
-            updatedUsers.Add(updatedUser);
+            return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
         }
 
-        return Ok(updatedUsers);
+        return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
     }
 
-    [HttpDelete("DeleteUser/{id:int}", Name = "DeleteUser")]
+    [HttpDelete("DeleteUser/{id:int}")]
     public async Task<IActionResult> DeleteUser(int id)
     {
-        var user = await _userServices.GetUserById(id);
+        var serviceResponse = await _userServices.DeleteUser(id);
 
-        if (user == null)
+        if (!serviceResponse.Success)
         {
-            return NotFound(new { message = "Usuário não encontrado!" });
+            return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
         }
 
-        await _userServices.DeleteUser(id);
-
-        var response = new
-        {
-            message = "Usuário deletado com sucesso!",
-            deletedUser = user,
-            links = new List<LinkDTO>
-        {
-            new LinkDTO(
-                Href: Url.Link("GetAllUsers", null),
-                Rel: "all-users",
-                Method: "GET",
-                Title: "Obter todos os usuários",
-                Type: "application/json"
-            ),
-            new LinkDTO(
-                Href: Url.Link("GetUserById", new { id = user.id }),
-                Rel: "details",
-                Method: "GET",
-                Title: "Obter detalhes do usuário deletado",
-                Type: "application/json"
-            )
-        }
-        };
-
-        return Ok(response);
+        return Ok(new { message = serviceResponse.Message });
     }
 
-    [HttpGet("{id}", Name = "GetUserById")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> GetUserById(int id)
     {
-        var user = await _userServices.GetUserById(id);
-        if (user == null)
+        var serviceResponse = await _userServices.GetUserById(id);
+
+        if (!serviceResponse.Success)
         {
-            return NotFound("Usuário não encontrado!");
+            return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
         }
-        return Ok(user);
+
+        return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
     }
 
     [Authorize]
     [HttpPut("UpdateUser")]
     public async Task<IActionResult> UpdateUser(UpdateUserDTO request)
     {
-        try
+        var serviceResponse = await _userServices.UpdateUser(request);
+
+        if (!serviceResponse.Success)
         {
-            var response = await _userServices.UpdateUser(request);
-            return Ok(response);
+            return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
         }
-        catch (UnauthorizedAccessException e)
-        {
-            return BadRequest($"Não foi possível atualizar os dados do usuário. Por favor, faça o login e tente novamente.\n {e.Message}");
-        }
+
+        return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
     }
-    [Authorize]
+
     [HttpPost("MarkPreemium")]
     public async Task<IActionResult> MarkPreemium(int userId, bool IsPreemium)
     {
-        try
+        var serviceResponse = await _userServices.TurnPreemium(userId, IsPreemium);
+
+        if (!serviceResponse.Success)
         {
-            var response = await _userServices.TurnPreemium(userId, IsPreemium);
-            return Ok(response);
+            return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
         }
-        catch (DbException e)
+
+        return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
+    }
+
+    [Authorize]
+    [HttpGet("ContentsAlreadySeen")]
+    public async Task<IActionResult> ContentsAlreadySeen()
+    {
+        var serviceResponse = await _userServices.ContentsAlreadySeens();
+
+        if (!serviceResponse.Success)
         {
-            return BadRequest(e.Message);
+            return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
         }
+
+        return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
     }
 }

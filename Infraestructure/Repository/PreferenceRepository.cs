@@ -20,17 +20,20 @@ public class PreferenceRepository : IPreferenceRepository
         try
         {
             await _context.Preferences.AddAsync(preference);
-        }catch(NullReferenceException e)
+        }
+        catch (NullReferenceException e)
         {
             throw new NullReferenceException(e.Message);
-        }catch(ArgumentException e)
+        }
+        catch (ArgumentException e)
         {
             throw new ArgumentException(e.Message);
-        }catch(DbException e)
+        }
+        catch (DbException e)
         {
             throw new Exception(e.Message);
         }
-        
+
     }
 
     public async Task<Preference?> GetPreferences(int userId)

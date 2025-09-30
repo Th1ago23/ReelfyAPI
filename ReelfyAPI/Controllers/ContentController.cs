@@ -3,7 +3,6 @@ using Application.Interface.ContentInterface;
 using Application.Interface.UserInterface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Data.Common;
 
 namespace ReelfyAPI.Controllers
 {
@@ -26,8 +25,8 @@ namespace ReelfyAPI.Controllers
         {
             if (request is null) return BadRequest("Erro ao favoritar");
 
-            await _contentService.Favorite(request);
-            return Created();
+            var response = await _contentService.Favorite(request);
+            return StatusCode(response.StatusCode, response.Data);
         }
 
         [HttpGet("{id}", Name = ("GetFavorite"))]
@@ -61,28 +60,28 @@ namespace ReelfyAPI.Controllers
 
             return Ok("Filme desfavoritado com sucesso.");
         }
+
+        [HttpGet("GetFavoritePerContentCount")]
+        public async Task<IActionResult> GetCountPerContent()
+        {
+            var response = await _contentService.CountContents();
+
+            return Ok(new
+            {
+                Response = response,
+                StatusCode = 200
+            });
+        }
+
         [Authorize]
         [HttpPut("MarkAlreadySeen/{contentId}")]
         public async Task<IActionResult> MarkSeen(int contentId, bool result)
         {
-            try
-            {
-                var request = await _contentService.MarkAlreadySeen(contentId, result);
-                return Ok(request);
-            }
-            catch (DbException e)
-            {
-                return BadRequest("Os servidores estão fora no momento. Tente novamente mais tarde");
-            }
-            catch (NullReferenceException e)
-            {
-                return BadRequest("Não foi possível encontrar os dados do usuário ou conteúdo.");
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                return Unauthorized("Usuário sem permissão. Faça o login novamente.");
-            }
+            var request = await _contentService.MarkAlreadySeen(contentId, result);
 
+            if (!request.Success) return StatusCode(request.StatusCode, request.Message);
+
+            return StatusCode(request.StatusCode, request.Data);
 
         }
     }

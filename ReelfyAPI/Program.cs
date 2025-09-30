@@ -10,7 +10,9 @@ using Domain.Interface.Repository;
 using Infraestructure.Data;
 using Infraestructure.HttpAcessor;
 using Infraestructure.Repository;
+using Infrastructure.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.OpenApi.Models;
@@ -46,6 +48,8 @@ builder.Services.AddScoped<IStreamingRepository, StreamingRepository>();
 builder.Services.AddScoped<ICrewRepository, CrewRepository>();
 builder.Services.AddScoped<ICastRepository, CastRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IContentListService, ContentListService>();
+builder.Services.AddScoped<IContentsListRepository, ContentsListRepository>();
 
 builder.Services.AddHostedService<CleaningDatabase>();
 builder.Services.AddHttpContextAccessor();
@@ -94,7 +98,28 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuer = false,
             ValidateAudience = false
         };
-    });
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = context =>
+            {
+                context.HandleResponse();
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentType = "application/problem+json";
+
+                var problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status401Unauthorized,
+                    Title = "Não autorizado",
+                    Detail = "Você precisa de um token de autenticação válido para acessar este recurso.",
+                    Instance = context.Request.Path
+                };
+
+                return context.Response.WriteAsJsonAsync(problemDetails);
+            }
+
+        };
+    }
+);
 
 builder.Services.AddCors(options =>
 {

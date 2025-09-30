@@ -23,11 +23,11 @@ namespace Infraestructure.Repository
             {
                 if (content == null || user == null) throw new NullReferenceException();
 
-                if (content.User == null) content.User = new List<User>();
+                if (content.FavoritedByUsers == null) content.FavoritedByUsers = new List<User>();
 
-                if (content.User.Contains(user)) throw new Exception("Usuário já favoritou este filme");
+                if (content.FavoritedByUsers.Contains(user)) throw new Exception("Usuário já favoritou este filme");
 
-                content.User.Add(user);
+                content.FavoritedByUsers.Add(user);
 
                 _dataContext.Add(content);
 
@@ -64,7 +64,9 @@ namespace Infraestructure.Repository
 
         public async Task<Content> Find(int id)
         {
-            var content = _dataContext.Contents.FirstOrDefault(x => x.Id == id)
+            var content = _dataContext
+                                    .Contents
+                                    .FirstOrDefault(x => x.Id == id)
                 ?? throw new Exception($"Não foi possível buscar um filme com o id {id}.");
 
             return content;
@@ -73,7 +75,10 @@ namespace Infraestructure.Repository
 
         public async Task<IEnumerable<Content>> FindAll()
         {
-            var contents = await _dataContext.Contents.ToListAsync();
+            var contents = await _dataContext
+                                        .Contents
+                                        .Include(i => i.FavoritedByUsers)
+                                        .ToListAsync();
 
             if (contents.Count == 0)
             {
@@ -82,6 +87,17 @@ namespace Infraestructure.Repository
 
             return contents;
         }
+
+        //public async Task<IEnumerable<Content>> FindContentsAlreadSeens(int userId)
+        //{
+        //    var contents = await _dataContext.Contents.Where(i => i.AlreadySeen == true).FirstOrDefaultAsync(i=>i.InUserContentLists.FirstOrDefault(i=>i.Id == userId)).ToListAsync();
+        //    var listContents = new List<Content>();
+
+        //    foreach (var item in contents)
+        //    {
+        //        if (item.InUserContentLists.FirstOrDefault(i=>i.Id == userId))
+        //    }
+        //}
 
         public async Task<Content> FindByName(string title)
         {

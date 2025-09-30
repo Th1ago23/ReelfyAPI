@@ -25,7 +25,7 @@ public class CrewRepository : ICrewRepository
         _context.Crews.Remove(crew);
         await _context.SaveChangesAsync();
     }
-    public async Task<Crew> Find (int id)
+    public async Task<Crew> Find(int id)
     {
         return await _context.Crews.FirstOrDefaultAsync(i => i.Id == id);
     }

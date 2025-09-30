@@ -2,7 +2,6 @@
 using Application.Interface.UserInterface;
 using Microsoft.AspNetCore.Mvc;
 using ReelfyAPI.Application.DTO;
-using ReelfyAPI.Models;
 
 namespace ReelfyAPI.Controllers;
 

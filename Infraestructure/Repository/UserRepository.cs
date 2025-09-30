@@ -39,9 +39,9 @@ namespace Infraestructure.Repository
         {
             var user = await GetById(userId);
 
-            var movie = user.Contents.FirstOrDefault(u => u.Id == ContentId) ?? throw new NullReferenceException("Não foi encontrado nenhum conteúdo com este Id.");
+            var movie = user.FavoriteContents.FirstOrDefault(u => u.Id == ContentId) ?? throw new NullReferenceException("Não foi encontrado nenhum conteúdo com este Id.");
 
-            user.Contents.Remove(movie);
+            user.FavoriteContents.Remove(movie);
 
             return true;
 
@@ -51,7 +51,7 @@ namespace Infraestructure.Repository
         {
             var user = await _context
              .Users
-             .Include(u => u.Contents)
+             .Include(u => u.FavoriteContents)
              .FirstOrDefaultAsync(u => u.Id == id)
              ?? throw new ArgumentNullException();
 
@@ -86,7 +86,7 @@ namespace Infraestructure.Repository
         {
             var user = await _context
                          .Users
-                         .Include(u => u.Contents)
+                         .Include(u => u.FavoriteContents)
                          .Include(i => i.Preference)
                             .ThenInclude(i => i.Genres)
                          .Include(i => i.Preference)
@@ -95,6 +95,8 @@ namespace Infraestructure.Repository
                             .ThenInclude(i => i.Crews)
                          .Include(i => i.Preference)
                             .ThenInclude(i => i.Streamings)
+                         .Include(i => i.ContentLists)
+                            .ThenInclude(i => i.Contents)
                          .FirstOrDefaultAsync(u => u.Id == id)
                          ?? throw new ArgumentNullException();
             return user;
@@ -120,7 +122,9 @@ namespace Infraestructure.Repository
                     .ThenInclude(p => p.Genres)
                 .Include(u => u.Preference)
                     .ThenInclude(p => p.Streamings)
-                .Include(u => u.Contents)
+                .Include(u => u.FavoriteContents)
+                .Include(u => u.ContentLists)
+                    .ThenInclude(u => u.Contents)
                 .ToListAsync();
 
             return users;

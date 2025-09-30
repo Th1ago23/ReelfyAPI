@@ -1,12 +1,9 @@
 ﻿using Application.DTO.Content.Preferences;
 using Application.DTO.Returns;
 using Application.DTO.Users;
-using Application.Interface.Mappers;
 using Application.Interface.UserInterface;
 using Application.Services;
-using Domain.Interface.Mappers;
 using Domain.Interface.Repository;
-using Domain.Models.Contents;
 using ReelfyAPI.Models;
 namespace ReelfyAPI.Services
 {

@@ -20,38 +20,28 @@ namespace ReelfyAPI.Controllers
         [HttpPost("AddPreferences")]
         public async Task<IActionResult> AddPreferences(PreferenceAddDTO dto)
         {
-            try
-            {
-                var preference = await _service.Add(dto);
-                return Ok(preference);
+            var serviceResponse = await _service.Add(dto);
 
-            }
-            catch (UnauthorizedAccessException e)
+            if (!serviceResponse.Success)
             {
-                return Unauthorized(e);
-            }catch(ArgumentException e)
-            {
-                return BadRequest(e.Message);
+                return StatusCode(serviceResponse.StatusCode, new { message = serviceResponse.Message });
             }
+
+            return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
         }
+
         [Authorize]
         [HttpGet("GetPreferences")]
         public async Task<IActionResult> GetPreferences()
         {
-            try
-            {
-                var result = await _service.GetAllPreferences();
+            var serviceResponse = await _service.GetAllPreferences();
 
-                return Ok(result);
-            }
-            catch (NullReferenceException e)
+            if (!serviceResponse.Success)
             {
-                return BadRequest(e.Message);
+                return StatusCode(serviceResponse.StatusCode, new { message = serviceResponse.Message });
             }
-            catch (UnauthorizedAccessException e)
-            {
-                return Unauthorized(e.Message);
-            }
+
+            return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
         }
     }
 }

@@ -22,7 +22,7 @@ namespace Application.Utils
                 Title = movie.Title,
                 ImageUrl = movie.ImageUrl,
                 AlreadySeen = movie.IsAlreadySeen,
-                User = null
+                FavoritedByUsers = null
             };
         }
         public FavoriteContentDTO ToDTO(Content content)

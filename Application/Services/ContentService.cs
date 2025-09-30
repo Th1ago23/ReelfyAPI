@@ -13,12 +13,14 @@ public class ContentService : IContentService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserRepository _userRepository;
     private readonly IContextUser _userInContext;
+    private readonly IContentsListRepository _contentsListRepository;
     private readonly IContentRepository _context;
     private readonly IMemoryCache _cache;
     private readonly IContentMapper _mapper;
 
-    public ContentService(IMemoryCache cache, IContentMapper mapper, IUnitOfWork unit, IUserRepository userRepository, IContentRepository context, IContextUser contextUser)
+    public ContentService(IContentsListRepository contentsListRepository, IMemoryCache cache, IContentMapper mapper, IUnitOfWork unit, IUserRepository userRepository, IContentRepository context, IContextUser contextUser)
     {
+        _contentsListRepository = contentsListRepository;
         _userInContext = contextUser;
         _cache = cache;
         _unitOfWork = unit;
@@ -119,4 +121,5 @@ public class ContentService : IContentService
 
         return new Response<FavoriteContentDTO>(updatedContentDTO, "Conteúdo atualizado com sucesso!", 200);
     }
+
 }

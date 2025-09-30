@@ -6,7 +6,7 @@ using ReelfyAPI.Data;
 
 namespace Infrastructure.Repository;
 
-public class ContentsListRepository:IContentsListRepository
+public class ContentsListRepository : IContentsListRepository
 {
     private readonly DataContext _context;
 
@@ -15,6 +15,10 @@ public class ContentsListRepository:IContentsListRepository
         _context = context;
     }
 
+    private IQueryable<ContentsList> Find()
+    {
+        return _context.ContentsLists.AsQueryable();
+    }
     public async Task Add(ContentsList Contents)
     {
         await _context.AddAsync(Contents);
@@ -26,6 +30,9 @@ public class ContentsListRepository:IContentsListRepository
     }
     public async Task<ContentsList> GetById(int id)
     {
-        return await _context.ContentsLists.FirstOrDefaultAsync(i=>i.Id == id);
+        return await Find()
+                        .Include(i => i.Contents)
+                            .ThenInclude(i => i.InUserContentLists)
+                        .FirstOrDefaultAsync(i => i.Id == id) ?? throw new NullReferenceException("Lista de conteúdo não encontrada.");
     }
 }
