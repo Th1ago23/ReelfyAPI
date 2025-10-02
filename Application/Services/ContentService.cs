@@ -13,14 +13,12 @@ public class ContentService : IContentService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserRepository _userRepository;
     private readonly IContextUser _userInContext;
-    private readonly IContentsListRepository _contentsListRepository;
     private readonly IContentRepository _context;
     private readonly IMemoryCache _cache;
     private readonly IContentMapper _mapper;
 
-    public ContentService(IContentsListRepository contentsListRepository, IMemoryCache cache, IContentMapper mapper, IUnitOfWork unit, IUserRepository userRepository, IContentRepository context, IContextUser contextUser)
+    public ContentService(IMemoryCache cache, IContentMapper mapper, IUnitOfWork unit, IUserRepository userRepository, IContentRepository context, IContextUser contextUser)
     {
-        _contentsListRepository = contentsListRepository;
         _userInContext = contextUser;
         _cache = cache;
         _unitOfWork = unit;
@@ -82,7 +80,7 @@ public class ContentService : IContentService
         return new Response<bool>(true, "Conteúdo desfavoritado com sucesso!", 200);
     }
 
-    public async Task<IEnumerable<FavoriteCountDTO>> CountContents()
+    public async Task<Response<IEnumerable<FavoriteCountDTO>>> CountContents()
     {
         var contents = await _context.FindAll();
         var contentsWithCount = new List<FavoriteCountDTO>();
@@ -90,9 +88,9 @@ public class ContentService : IContentService
         foreach (var content in contents)
         {
             var usersCount = content.FavoritedByUsers?.Count() ?? 0;
-            contentsWithCount.Add(new FavoriteCountDTO(content.Title, content.category, content.Id, usersCount));
+            contentsWithCount.Add(new FavoriteCountDTO(content.Id, usersCount));
         }
-        return contentsWithCount;
+        return new Response<IEnumerable<FavoriteCountDTO>>(contentsWithCount,"Requisição processada com sucesso", 200);
     }
 
 
@@ -117,7 +115,7 @@ public class ContentService : IContentService
         _context.Update(content);
         await _unitOfWork.CommitAsync();
 
-        var updatedContentDTO = new FavoriteContentDTO(content.Id, content.Title, content.category, content.ImageUrl, content.AlreadySeen);
+        var updatedContentDTO = new FavoriteContentDTO(content.Id, content.AlreadySeen);
 
         return new Response<FavoriteContentDTO>(updatedContentDTO, "Conteúdo atualizado com sucesso!", 200);
     }

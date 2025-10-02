@@ -23,30 +23,25 @@ namespace ReelfyAPI.Controllers
         [HttpPost("Favorite", Name = ("favorite"))]
         public async Task<IActionResult> Favorite(FavoriteContentDTO request)
         {
-            if (request is null) return BadRequest("Erro ao favoritar");
-
             var response = await _contentService.Favorite(request);
-            return StatusCode(response.StatusCode, response.Data);
+
+            return StatusCode(response.StatusCode, response);
         }
 
         [HttpGet("{id}", Name = ("GetFavorite"))]
         public async Task<IActionResult> GetFavorite(int id)
         {
-            var user = await _userService.GetFavorite(id);
-
-            if (user is null) return BadRequest();
-
-            return Ok(user);
+            var response = await _userService.GetFavorite(id);
+            return StatusCode(response.StatusCode, response);
         }
 
         [Authorize]
         [HttpGet("GetFavoriteInContext")]
         public async Task<IActionResult> GetFavoriteInContext()
         {
-            var user = await _userService.GetFavoriteInContext();
-            if (user is null) return BadRequest();
+            var response = await _userService.GetFavoriteInContext();
 
-            return Ok(user);
+            return StatusCode(response.StatusCode, response);
         }
 
         [Authorize]
@@ -55,10 +50,7 @@ namespace ReelfyAPI.Controllers
         {
             var response = await _contentService.Unfavorite(id);
 
-            if (response is null || !response.Success)
-                return BadRequest(response?.Message ?? "Erro ao remover favorito");
-
-            return Ok("Filme desfavoritado com sucesso.");
+            return StatusCode(response.StatusCode, response);
         }
 
         [HttpGet("GetFavoritePerContentCount")]
@@ -66,22 +58,16 @@ namespace ReelfyAPI.Controllers
         {
             var response = await _contentService.CountContents();
 
-            return Ok(new
-            {
-                Response = response,
-                StatusCode = 200
-            });
+            return StatusCode(response.StatusCode, response);
         }
 
         [Authorize]
-        [HttpPut("MarkAlreadySeen/{contentId}")]
+        [HttpPut("MarkAlreadySeen/{contentId}/{result}")]
         public async Task<IActionResult> MarkSeen(int contentId, bool result)
         {
             var request = await _contentService.MarkAlreadySeen(contentId, result);
 
-            if (!request.Success) return StatusCode(request.StatusCode, request.Message);
-
-            return StatusCode(request.StatusCode, request.Data);
+            return StatusCode(request.StatusCode, request);
 
         }
     }

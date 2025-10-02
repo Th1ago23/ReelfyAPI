@@ -33,6 +33,6 @@ public class ContentsListRepository : IContentsListRepository
         return await Find()
                         .Include(i => i.Contents)
                             .ThenInclude(i => i.InUserContentLists)
-                        .FirstOrDefaultAsync(i => i.Id == id) ?? throw new NullReferenceException("Lista de conteúdo não encontrada.");
+                        .FirstOrDefaultAsync(i => i.Id == id);
     }
 }

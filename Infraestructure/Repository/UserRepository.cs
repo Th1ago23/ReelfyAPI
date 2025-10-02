@@ -14,27 +14,6 @@ namespace Infraestructure.Repository
         {
             _context = context;
         }
-
-        //public async Task<User> FindFavorite()
-        //{
-        //    var ur = _acessor.Id ?? throw new ArgumentNullException();
-        //    var cacheKey = $"UserFavorites_{ur}";
-
-        //    if (_cache.TryGetValue(cacheKey, out User cachedUser)) return cachedUser;
-
-        //    var user = await _context
-        //     .Users
-        //     .Include(u => u.Movies)
-        //     .FirstOrDefaultAsync(u => u.Id == ur)
-        //     ?? throw new ArgumentNullException();
-
-        //    var cacheEntryOptions = new MemoryCacheEntryOptions()
-        //    .SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
-        //    _cache.Set(cacheKey, user, cacheEntryOptions);
-
-        //    return user;
-        //}
-
         public async Task<bool> RemoveFavorite(int ContentId, int userId)
         {
             var user = await GetById(userId);
@@ -44,9 +23,7 @@ namespace Infraestructure.Repository
             user.FavoriteContents.Remove(movie);
 
             return true;
-
         }
-
         public async Task<User> FindFavorite(int id)
         {
             var user = await _context
@@ -106,6 +83,17 @@ namespace Infraestructure.Repository
         {
             var user = await _context
                                 .Users
+                                .Include(u => u.FavoriteContents)
+                                .Include(i => i.Preference)
+                                   .ThenInclude(i => i.Genres)
+                                .Include(i => i.Preference)
+                                   .ThenInclude(i => i.Casts)
+                                .Include(i => i.Preference)
+                                   .ThenInclude(i => i.Crews)
+                                .Include(i => i.Preference)
+                                   .ThenInclude(i => i.Streamings)
+                                .Include(i => i.ContentLists)
+                                   .ThenInclude(i => i.Contents)
                                 .FirstOrDefaultAsync(u => u.Email == email) ??
                                 throw new ArgumentNullException();
             return user;

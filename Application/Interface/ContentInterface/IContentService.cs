@@ -8,7 +8,7 @@ namespace Application.Interface.ContentInterface
         Task<Response<FavoriteContentDTO>> Favorite(FavoriteContentDTO movie);
         Task<Response<FavoriteContentDTO>> MarkAlreadySeen(int id, bool result);
         Task<Response<bool>> Unfavorite(int id);
-        Task<IEnumerable<FavoriteCountDTO>> CountContents();
+        Task<Response<IEnumerable<FavoriteCountDTO>>> CountContents();
 
     }
 }

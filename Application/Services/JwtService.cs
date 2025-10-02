@@ -1,5 +1,8 @@
 ﻿using Application.DTO.Users;
+using Domain.Models.Users;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace Application.Services
@@ -30,45 +33,32 @@ namespace Application.Services
                 return computedHash.SequenceEqual(storedHash);
             }
         }
-        public string CreateToken(UserResponseDTO user)
+        public string CreateToken(int id, string email)
         {
             var claims = new List<Claim>
-           {
-               new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-               new Claim(ClaimTypes.Email, user.Email)
-           };
-
-            var tokenKey = _configuration.GetSection("AppSettings:Token").Value;
-            if (string.IsNullOrEmpty(tokenKey))
             {
-                throw new ArgumentNullException(nameof(tokenKey), "TokenKey não pode ser nulo ou vazio.");
-            }
+                new Claim(ClaimTypes.NameIdentifier, id.ToString()),
+                new Claim(ClaimTypes.Email, email)
+            };
 
-            var key = new Microsoft
-                .IdentityModel
-                .Tokens
-                .SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(tokenKey));
+            var tokenKey = _configuration.GetSection("AppSettings:Token").Value
+                           ?? throw new ArgumentNullException("TokenKey não pode ser nulo ou vazio.");
 
-            var creds = new Microsoft
-                .IdentityModel
-                .Tokens
-                .SigningCredentials(key, Microsoft.IdentityModel.Tokens.SecurityAlgorithms.HmacSha512Signature);
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(tokenKey));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
-            var tokenDescriptor = new Microsoft
-                .IdentityModel
-                .Tokens
-                .SecurityTokenDescriptor
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.Now.AddDays(7),
                 SigningCredentials = creds
             };
 
-            var tokenHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-
+            var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return tokenHandler.WriteToken(token);
         }
+
     }
 }

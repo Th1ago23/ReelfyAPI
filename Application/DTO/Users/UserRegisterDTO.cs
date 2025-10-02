@@ -11,7 +11,6 @@ namespace Application.DTO.Users
     [Required]
     [StringLength(100, MinimumLength = 6, ErrorMessage = "A senha deve ter entre 6 e 100 caracteres.")]
     string Password,
-
     [Required]
     DateOnly Birthday,
 

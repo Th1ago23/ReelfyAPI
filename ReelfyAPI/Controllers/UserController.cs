@@ -21,12 +21,7 @@ public class UserController : ControllerBase
     {
         var serviceResponse = await _userServices.GetAllUsers();
 
-        if (!serviceResponse.Success)
-        {
-            return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
-        }
-
-        return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
+        return StatusCode(serviceResponse.StatusCode, serviceResponse);
     }
 
     [HttpDelete("DeleteUser/{id:int}")]
@@ -34,12 +29,7 @@ public class UserController : ControllerBase
     {
         var serviceResponse = await _userServices.DeleteUser(id);
 
-        if (!serviceResponse.Success)
-        {
-            return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
-        }
-
-        return Ok(new { message = serviceResponse.Message });
+        return StatusCode(serviceResponse.StatusCode, serviceResponse);
     }
 
     [HttpGet("{id:int}")]
@@ -47,12 +37,7 @@ public class UserController : ControllerBase
     {
         var serviceResponse = await _userServices.GetUserById(id);
 
-        if (!serviceResponse.Success)
-        {
-            return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
-        }
-
-        return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
+        return StatusCode(serviceResponse.StatusCode, serviceResponse);
     }
 
     [Authorize]
@@ -61,25 +46,15 @@ public class UserController : ControllerBase
     {
         var serviceResponse = await _userServices.UpdateUser(request);
 
-        if (!serviceResponse.Success)
-        {
-            return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
-        }
-
-        return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
+        return StatusCode(serviceResponse.StatusCode, serviceResponse);
     }
 
-    [HttpPost("MarkPreemium")]
-    public async Task<IActionResult> MarkPreemium(int userId, bool IsPreemium)
+    [HttpPut("MarkPreemium/{userId}/{isPreemium}")]
+    public async Task<IActionResult> MarkPreemium(int userId, bool isPreemium)
     {
-        var serviceResponse = await _userServices.TurnPreemium(userId, IsPreemium);
+        var serviceResponse = await _userServices.TurnPreemium(userId, isPreemium);
 
-        if (!serviceResponse.Success)
-        {
-            return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
-        }
-
-        return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
+        return StatusCode(serviceResponse.StatusCode, serviceResponse);
     }
 
     [Authorize]
@@ -88,11 +63,6 @@ public class UserController : ControllerBase
     {
         var serviceResponse = await _userServices.ContentsAlreadySeens();
 
-        if (!serviceResponse.Success)
-        {
-            return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
-        }
-
-        return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
+        return StatusCode(serviceResponse.StatusCode, serviceResponse);
     }
 }

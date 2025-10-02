@@ -22,9 +22,7 @@ namespace ReelfyAPI.Controllers
         {
             var serviceResponse = await _service.ListCreate(dto);
 
-            if (!serviceResponse.Success) return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
-
-            return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
+            return StatusCode(serviceResponse.StatusCode, serviceResponse);
         }
 
         [Authorize]
@@ -33,9 +31,7 @@ namespace ReelfyAPI.Controllers
         {
             var serviceResponse = await _service.DeleteContentList(listId);
 
-            if (!serviceResponse.Success) return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
-
-            return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
+            return StatusCode(serviceResponse.StatusCode, serviceResponse);
         }
 
         [Authorize]
@@ -44,9 +40,7 @@ namespace ReelfyAPI.Controllers
         {
             var serviceResponse = await _service.AddContentToList(contentId, listId);
 
-            if (!serviceResponse.Success) return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
-
-            return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
+            return StatusCode(serviceResponse.StatusCode, serviceResponse);
         }
         [Authorize]
         [HttpDelete("RemoveContentFromList/{listId}/{contentId}")]
@@ -54,9 +48,7 @@ namespace ReelfyAPI.Controllers
         {
             var serviceResponse = await _service.RemoveContentoFromList(contentId, listId);
 
-            if (!serviceResponse.Success) return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
-
-            return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
+            return StatusCode(serviceResponse.StatusCode, serviceResponse);
         }
         [Authorize]
         [HttpGet("GetContentFromList/{listId}/{contentId}")]
@@ -64,9 +56,7 @@ namespace ReelfyAPI.Controllers
         {
             var serviceResponse = await _service.GetContentFromList(listId, contentId);
 
-            if (!serviceResponse.Success) return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
-
-            return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
+            return StatusCode(serviceResponse.StatusCode, serviceResponse);
         }
         [Authorize]
         [HttpGet("GetAllContentsFromList/{listId}")]
@@ -74,9 +64,15 @@ namespace ReelfyAPI.Controllers
         {
             var serviceResponse = await _service.GetAllContentsFromList(listId);
 
-            if (!serviceResponse.Success) return StatusCode(serviceResponse.StatusCode, serviceResponse.Message);
+            return StatusCode(serviceResponse.StatusCode, serviceResponse);
+        }
+        [Authorize]
+        [HttpGet("GetLists")]
+        public async Task<IActionResult> GetLists()
+        {
+            var serviceResponse = await _service.GetAllLists();
 
-            return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
+            return StatusCode(serviceResponse.StatusCode, serviceResponse);
         }
     }
 }

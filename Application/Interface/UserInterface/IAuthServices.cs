@@ -6,8 +6,8 @@ namespace Application.Interface.UserInterface;
 
 public interface IAuthServices
 {
-    public Task<Response<ResponseRequestDTO>> Register(UserRegisterDTO userDto);
+    public Task<Response<UserResponseAuthDTO>> Register(UserRegisterDTO userDto);
 
-    public Task<Response<UserResponseLoginDTO?>> Login(UserLoginDTO loginDto);
-    public Task<Response<UserResponseDTO>> UpdatePassword(UpdatePasswordDTO update, string newPassword);
+    public Task<Response<UserResponseAuthDTO?>> Login(UserLoginDTO loginDto);
+    public Task<Response<UserResponseAuthDTO>> UpdatePassword(UpdatePasswordDTO update, string newPassword);
 }

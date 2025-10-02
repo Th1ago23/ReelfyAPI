@@ -25,7 +25,7 @@ namespace Infraestructure.Repository
 
                 if (content.FavoritedByUsers == null) content.FavoritedByUsers = new List<User>();
 
-                if (content.FavoritedByUsers.Contains(user)) throw new Exception("Usuário já favoritou este filme");
+                if (content.FavoritedByUsers.Contains(user)) ;
 
                 content.FavoritedByUsers.Add(user);
 
@@ -66,10 +66,8 @@ namespace Infraestructure.Repository
         {
             var content = _dataContext
                                     .Contents
-                                    .FirstOrDefault(x => x.Id == id)
-                ?? throw new Exception($"Não foi possível buscar um filme com o id {id}.");
-
-            return content;
+                                    .FirstOrDefault(x => x.Id == id);
+           return content;
         }
 
 

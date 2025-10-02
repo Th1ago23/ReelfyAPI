@@ -19,15 +19,13 @@ namespace Application.Utils
             return new Content
             {
                 Id = movie.id,
-                Title = movie.Title,
-                ImageUrl = movie.ImageUrl,
                 AlreadySeen = movie.IsAlreadySeen,
                 FavoritedByUsers = null
             };
         }
         public FavoriteContentDTO ToDTO(Content content)
         {
-            return new FavoriteContentDTO(content.Id, content.Title, content.category, content.ImageUrl, content.AlreadySeen);
+            return new FavoriteContentDTO(content.Id, content.AlreadySeen);
         }
 
         public IEnumerable<Content> ToEntities(IEnumerable<FavoriteContentDTO> movies)

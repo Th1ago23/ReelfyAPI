@@ -46,7 +46,7 @@ public class ContentListService : IContentListService
 
         var response = new ContentsListResponseDTO(contentInListEntity.UserId, contentInListEntity.Id, null);
 
-        return new Response<ContentsListResponseDTO>(response, $"Lista {contentInListEntity.Name}", 201);
+        return new Response<ContentsListResponseDTO>(response, $"Lista {contentInListEntity.Name} criada com sucesso", 201);
     }
 
     public async Task<Response<ContentsListResponseDTO>> AddContentToList(int contentId, int listId)
@@ -57,8 +57,16 @@ public class ContentListService : IContentListService
 
         var content = await _contentRepository.Find(contentId);
 
-        if (content == null) return new Response<ContentsListResponseDTO>(null, "Conteúdo não encontrado.");
+        if (content == null)
+        {
+            content = new Content
+            {
+                Id = contentId,
+            };
 
+            await _contentRepository.Add(content, user);
+            await _unitOfWork.CommitAsync();
+        }
         var contentList = await _context.GetById(listId);
 
         if (!user.ContentLists.Any(i => i.Id == contentList.Id)) return new Response<ContentsListResponseDTO>(null, "Essa lista não existe. Por favor, crie uma lista válida para adicionar os conteúdos.", 401);
@@ -70,7 +78,7 @@ public class ContentListService : IContentListService
 
         var response = new ContentsListResponseDTO(contentList.UserId, contentList.Id, contentList.Contents.Select(_contentMapper.ToDTO));
 
-        return new Response<ContentsListResponseDTO>(response, $"{content.Title} adicionado a lista {contentList.Id}", 200);
+        return new Response<ContentsListResponseDTO>(response, "Conteúdo adicionado com sucesso", 200);
 
     }
     public async Task<Response<ContentsListResponseDTO>> RemoveContentoFromList(int contentId, int listId)
@@ -91,7 +99,7 @@ public class ContentListService : IContentListService
 
         var response = new ContentsListResponseDTO(contentList.UserId, contentList.Id, contentList.Contents.Select(_contentMapper.ToDTO));
 
-        return new Response<ContentsListResponseDTO>(response, $"{contentToRemove.Title} removido com sucesso", 200);
+        return new Response<ContentsListResponseDTO>(response, "Conteúdo removido com sucesso", 200);
     }
 
     public async Task<Response<ContentsListResponseDTO>> DeleteContentList(int id)
@@ -130,5 +138,22 @@ public class ContentListService : IContentListService
         var response = new ContentsListResponseDTO(contentList.UserId, contentList.Id, contentList.Contents.Select(_contentMapper.ToDTO));
 
         return new Response<ContentsListResponseDTO>(response, "Lista de conteúdo encontrada com sucesso.", 200);
+    }
+    public async Task<Response<ContentListEnumerableDTO>> GetAllLists()
+    {
+        var user = await _userRepository.GetById(_contextUser.Id);
+
+        if (user == null) return new Response<ContentListEnumerableDTO>(null, "Usuário não autorizado. Por favor, faça login novamente ou tente novamente mais tarde.", 401);
+
+        var listDTO = new List<ListDTO>();
+
+        foreach (var index in user.ContentLists)
+        {
+            listDTO.Add(new ListDTO(index.Id, index.Name, index.Description, index.Contents.Select(_contentMapper.ToDTO)));
+        }
+
+        var response = new ContentListEnumerableDTO(user.Id, listDTO);
+
+        return new Response<ContentListEnumerableDTO>(response, "Lista retornada com sucesso", 200);
     }
 }

@@ -11,4 +11,5 @@ public interface IContentListService
     public Task<Response<ContentsListResponseDTO>> DeleteContentList(int id);
     public Task<Response<ContentsListResponseDTO>> GetAllContentsFromList(int listId);
     public Task<Response<ContentFromListDTO>> GetContentFromList(int listId, int contentId);
+    public Task<Response<ContentListEnumerableDTO>> GetAllLists();
 }

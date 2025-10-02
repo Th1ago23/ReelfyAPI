@@ -3,6 +3,6 @@
 namespace Application.DTO.Content
 {
     public record FavoriteContentDTO
-    (int id, string? Title, Category? Category, string? ImageUrl, bool? IsAlreadySeen)
+    (int id,bool? IsAlreadySeen)
     { }
 }

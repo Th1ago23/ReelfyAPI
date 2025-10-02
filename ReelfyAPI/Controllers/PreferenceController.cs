@@ -22,12 +22,7 @@ namespace ReelfyAPI.Controllers
         {
             var serviceResponse = await _service.Add(dto);
 
-            if (!serviceResponse.Success)
-            {
-                return StatusCode(serviceResponse.StatusCode, new { message = serviceResponse.Message });
-            }
-
-            return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
+            return StatusCode(serviceResponse.StatusCode, serviceResponse);
         }
 
         [Authorize]
@@ -36,12 +31,7 @@ namespace ReelfyAPI.Controllers
         {
             var serviceResponse = await _service.GetAllPreferences();
 
-            if (!serviceResponse.Success)
-            {
-                return StatusCode(serviceResponse.StatusCode, new { message = serviceResponse.Message });
-            }
-
-            return StatusCode(serviceResponse.StatusCode, serviceResponse.Data);
+            return StatusCode(serviceResponse.StatusCode, serviceResponse);
         }
     }
 }
