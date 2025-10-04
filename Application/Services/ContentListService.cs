@@ -64,7 +64,7 @@ public class ContentListService : IContentListService
                 Id = contentId,
             };
 
-            await _contentRepository.Add(content, user);
+            await _contentRepository.Add(content);
             await _unitOfWork.CommitAsync();
         }
         var contentList = await _context.GetById(listId);

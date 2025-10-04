@@ -5,9 +5,10 @@ namespace Domain.Interface.Repository
 {
     public interface IContentRepository
     {
-        Task<Content> Add(Content content, User user);
+        Task<Content> Add(Content content);
         Task Delete(Content content);
         void Update(Content content);
+        void Attach(Content content);
         //Task<int> Count();
         Task<Content> Find(int id);
         Task<IEnumerable<Content>> FindAll();

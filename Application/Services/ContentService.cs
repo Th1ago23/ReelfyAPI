@@ -36,18 +36,23 @@ public class ContentService : IContentService
 
         var user = await _userRepository.GetById(_userInContext.Id);
 
-        var content = _mapper.ToEntity(favoriteContentDTO);
+        var content = await _context.Find(favoriteContentDTO.id);
 
-        if (user.FavoriteContents is null) user.FavoriteContents = new List<Content>();
+        if (content == null)
+        {
+            content = _mapper.ToEntity(favoriteContentDTO);
+            await _context.Add(content);
+            await _unitOfWork.CommitAsync();
+        }
 
-        if (user.FavoriteContents.Any(c => c.Id == content.Id))
+        if (user.FavoriteContents.Any(c => c.Id == favoriteContentDTO.id))
         {
             return new Response<FavoriteContentDTO>(null, "Este conteúdo já foi favoritado.", 409);
         }
-
+        
+        _context.Attach(content);
         user.FavoriteContents.Add(content);
 
-        await _context.Add(content, user);
         await _unitOfWork.CommitAsync();
 
         _cache.Remove($"UserFavorites_{user.Id}");

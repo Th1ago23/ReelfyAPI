@@ -17,18 +17,14 @@ namespace Infraestructure.Repository
             _dataContext = dataContext;
         }
 
-        public async Task<Content> Add(Content content, User user)
+        public void Attach(Content content)
+        {
+            _dataContext.Attach(content);
+        }
+        public async Task<Content> Add(Content content)
         {
             try
             {
-                if (content == null || user == null) throw new NullReferenceException();
-
-                if (content.FavoritedByUsers == null) content.FavoritedByUsers = new List<User>();
-
-                if (content.FavoritedByUsers.Contains(user)) ;
-
-                content.FavoritedByUsers.Add(user);
-
                 _dataContext.Add(content);
 
                 return content;
