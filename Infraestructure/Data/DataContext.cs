@@ -17,6 +17,7 @@ namespace ReelfyAPI.Data
         public DbSet<Streaming> Streamings { get; set; }
         public DbSet<Genre> Genres { get; set; }
         public DbSet<ContentsList> ContentsLists { get; set; }
+        public DbSet<FavoriteContent> FavoriteContents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,7 +27,7 @@ namespace ReelfyAPI.Data
                 .HasOne(u => u.Preference)
                 .WithOne(p => p.User)
                 .HasForeignKey<Preference>(p => p.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Preference>()
                 .HasMany(p => p.Casts)
@@ -43,11 +44,6 @@ namespace ReelfyAPI.Data
             modelBuilder.Entity<Preference>()
                 .HasMany(p => p.Streamings)
                 .WithMany(s => s.Preferences);
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.Preference)
-                .WithOne(p => p.User)
-                .HasForeignKey<Preference>(p => p.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ContentsList>()
                 .HasOne(ucl => ucl.User)
@@ -57,6 +53,19 @@ namespace ReelfyAPI.Data
             modelBuilder.Entity<ContentsList>()
                 .HasMany(ucl => ucl.Contents)
                 .WithMany(c => c.InUserContentLists);
+
+            modelBuilder.Entity<FavoriteContent>()
+                .HasKey(fc => fc.Id);
+
+            modelBuilder.Entity<FavoriteContent>()
+                .HasOne(fc => fc.User)
+                .WithMany(u => u.FavoriteContents)
+                .HasForeignKey(fc => fc.UserId);
+
+            modelBuilder.Entity<FavoriteContent>()
+                .HasOne(fc => fc.Content)
+                .WithMany(c => c.FavoritedByUsers)
+                .HasForeignKey(fc => fc.ContentId);
         }
     }
 }

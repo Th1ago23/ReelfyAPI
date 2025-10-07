@@ -82,17 +82,6 @@ namespace Infraestructure.Repository
             return contents;
         }
 
-        //public async Task<IEnumerable<Content>> FindContentsAlreadSeens(int userId)
-        //{
-        //    var contents = await _dataContext.Contents.Where(i => i.AlreadySeen == true).FirstOrDefaultAsync(i=>i.InUserContentLists.FirstOrDefault(i=>i.Id == userId)).ToListAsync();
-        //    var listContents = new List<Content>();
-
-        //    foreach (var item in contents)
-        //    {
-        //        if (item.InUserContentLists.FirstOrDefault(i=>i.Id == userId))
-        //    }
-        //}
-
         public async Task<Content> FindByName(string title)
         {
             var content = await _dataContext.Contents.FirstOrDefaultAsync(m => m.Title == title);

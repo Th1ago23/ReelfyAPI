@@ -14,27 +14,31 @@ public class ContentService : IContentService
     private readonly IUserRepository _userRepository;
     private readonly IContextUser _userInContext;
     private readonly IContentRepository _context;
+    private readonly IFavoriteContentRepository _favoriteContentRepository;
     private readonly IMemoryCache _cache;
     private readonly IContentMapper _mapper;
 
-    public ContentService(IMemoryCache cache, IContentMapper mapper, IUnitOfWork unit, IUserRepository userRepository, IContentRepository context, IContextUser contextUser)
+    public ContentService(IUnitOfWork unitOfWork, IUserRepository userRepository, IContextUser userInContext, IContentRepository context, IFavoriteContentRepository favoriteContentRepository, IMemoryCache cache, IContentMapper mapper)
     {
-        _userInContext = contextUser;
-        _cache = cache;
-        _unitOfWork = unit;
-        _mapper = mapper;
+        _unitOfWork = unitOfWork;
         _userRepository = userRepository;
+        _userInContext = userInContext;
         _context = context;
+        _favoriteContentRepository = favoriteContentRepository;
+        _cache = cache;
+        _mapper = mapper;
     }
 
     public async Task<Response<FavoriteContentDTO>> Favorite(FavoriteContentDTO favoriteContentDTO)
     {
         if (favoriteContentDTO is null)
         {
-            return new Response<FavoriteContentDTO>(null, "O objeto de conteúdo favorito não pode ser nulo.", 400);
+            return new Response<FavoriteContentDTO>(null, "O conteúdo favorito não pode ser nulo.", 400);
         }
 
         var user = await _userRepository.GetById(_userInContext.Id);
+        if (user == null)
+            return new Response<FavoriteContentDTO>(null, "Usuário sem permissão. Por favor, faça login novamente.", 401);
 
         var content = await _context.Find(favoriteContentDTO.id);
 
@@ -45,14 +49,17 @@ public class ContentService : IContentService
             await _unitOfWork.CommitAsync();
         }
 
-        if (user.FavoriteContents.Any(c => c.Id == favoriteContentDTO.id))
-        {
-            return new Response<FavoriteContentDTO>(null, "Este conteúdo já foi favoritado.", 409);
-        }
-        
-        _context.Attach(content);
-        user.FavoriteContents.Add(content);
+        var favorite = await _favoriteContentRepository.GetByUserAndContentAsync(user.Id, content.Id);
+        if (favorite != null) return new Response<FavoriteContentDTO>(null, "Este conteúdo já foi favoritado.", 409);
 
+        favorite = new FavoriteContent
+        {
+            UserId = user.Id,
+            ContentId = content.Id,
+            AlreadySeen = false
+        };
+
+        await _favoriteContentRepository.Add(favorite);
         await _unitOfWork.CommitAsync();
 
         _cache.Remove($"UserFavorites_{user.Id}");
@@ -60,24 +67,19 @@ public class ContentService : IContentService
         return new Response<FavoriteContentDTO>(favoriteContentDTO, "Conteúdo favoritado com sucesso!", 200);
     }
 
-    public async Task<Response<bool>> Unfavorite(int id)
+    public async Task<Response<bool>> Unfavorite(int contentId)
     {
         var user = await _userRepository.GetById(_userInContext.Id);
 
-        if (user is null)
-        {
+        if (user == null)
             return new Response<bool>(false, "Usuário não autenticado. Faça Login novamente.", 404);
-        }
 
-        var contentToRemove = user.FavoriteContents.FirstOrDefault(i => i.Id == id);
+        var favorite = await _favoriteContentRepository.GetByUserAndContentAsync(user.Id, contentId);
 
-        if (contentToRemove is null)
-        {
+        if (favorite == null)
             return new Response<bool>(false, "Conteúdo não encontrado na sua lista de favoritos.", 404);
-        }
 
-        user.FavoriteContents.Remove(contentToRemove);
-
+        await _favoriteContentRepository.Delete(favorite.Id);
         await _unitOfWork.CommitAsync();
 
         _cache.Remove($"UserFavorites_{user.Id}");
@@ -87,15 +89,15 @@ public class ContentService : IContentService
 
     public async Task<Response<IEnumerable<FavoriteCountDTO>>> CountContents()
     {
-        var contents = await _context.FindAll();
-        var contentsWithCount = new List<FavoriteCountDTO>();
+        var favorites = await _favoriteContentRepository.GetAllAsync();
 
-        foreach (var content in contents)
-        {
-            var usersCount = content.FavoritedByUsers?.Count() ?? 0;
-            contentsWithCount.Add(new FavoriteCountDTO(content.Id, usersCount));
-        }
-        return new Response<IEnumerable<FavoriteCountDTO>>(contentsWithCount,"Requisição processada com sucesso", 200);
+        var counts = favorites
+            .GroupBy(fc => fc.ContentId)
+            .Select(g => new FavoriteCountDTO(g.Key, g.Count()))
+            .OrderByDescending(x => x.usersCount)
+            .ToList();
+
+        return new Response<IEnumerable<FavoriteCountDTO>>(counts, "Requisição processada com sucesso", 200);
     }
 
 
@@ -112,7 +114,7 @@ public class ContentService : IContentService
 
         if (content is null)
         {
-            return new Response<FavoriteContentDTO>(null, "O conteúdo não está na sua lista de favoritos.", 404);
+            await _context.Add(content);
         }
 
         content.AlreadySeen = result;

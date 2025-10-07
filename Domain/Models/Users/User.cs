@@ -29,7 +29,7 @@ public class User
     [Required]
     public string? PhoneNumber { get; set; }
 
-    public ICollection<Content> FavoriteContents { get; set; } = new List<Content>();
+    public ICollection<FavoriteContent> FavoriteContents { get; set; } = new List<FavoriteContent>();
     public ICollection<ContentsList> ContentLists { get; set; } = new List<ContentsList>();
     public Preference Preference { get; set; } = new Preference();
 

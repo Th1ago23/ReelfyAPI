@@ -13,14 +13,13 @@ public class Content
     public string? Title { get; set; }
     public Category? category { get; set; }
     public string? ImageUrl { get; set; }
-    public bool? AlreadySeen { get; set; } = false;
 
-    public ICollection<User> FavoritedByUsers { get; set; } = new List<User>();
+    public ICollection<FavoriteContent> FavoritedByUsers { get; set; } = new List<FavoriteContent>();
     public ICollection<ContentsList> InUserContentLists { get; set; } = new List<ContentsList>();
 
     public Content() { }
 
-    public Content(int id, string Title, Category category, string ImageUrl, ICollection<User> user)
+    public Content(int id, string Title, Category category, string ImageUrl, ICollection<FavoriteContent> user)
     {
         Id = id;
         this.Title = Title;
