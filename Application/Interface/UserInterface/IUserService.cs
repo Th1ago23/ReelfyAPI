@@ -11,9 +11,6 @@ public interface IUserService
     Task<Response<IEnumerable<UserSummaryDTO>>> GetAllUsers();
     Task<Response<bool>> DeleteUser(int id);
     Task<Response<bool>> VerifyUser(string email);
-    Task<Response<FavoriteDTO>> GetFavorite(int id);
-    Task<Response<FavoriteDTO>> GetFavoriteInContext();
     Task<Response<UserResponseDTO>> UpdateUser(UpdateUserDTO update);
-    Task<Response<UserSummaryDTO>> TurnPreemium(int id, bool result);
-    Task<Response<ContentAlreadySeensDTO>> ContentsAlreadySeens();
+    Task<Response<UserSummaryDTO>> TurnPremium(int id, bool result);
 }

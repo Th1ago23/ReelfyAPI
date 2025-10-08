@@ -13,6 +13,7 @@ namespace Domain.Interface.Repository
         Task<Content> Find(int id);
         Task<IEnumerable<Content>> FindAll();
         Task<Content> FindByName(string name);
+        Task<IEnumerable<Content>> GetFavoritedAndSeenByUserAsync(int userId);
 
     }
 }

@@ -6,7 +6,5 @@ using System.Threading.Tasks;
 
 namespace Application.DTO.Content
 {
-    public record ListDTO(int listId, string name, string description, IEnumerable<FavoriteContentDTO> contents)
-    {
-    }
+    public record ListSummaryDTO(int Id, string Name, int ContentCount);
 }

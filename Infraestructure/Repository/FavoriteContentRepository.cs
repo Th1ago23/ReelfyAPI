@@ -5,7 +5,7 @@ using ReelfyAPI.Data;
 
 namespace Infrastructure.Repository;
 
-public class FavoriteContentRepository:IFavoriteContentRepository
+public class FavoriteContentRepository : IFavoriteContentRepository
 {
     private readonly DataContext _context;
 
@@ -14,38 +14,44 @@ public class FavoriteContentRepository:IFavoriteContentRepository
         _context = context;
     }
 
-    public async Task Add(FavoriteContent content)
+    public async Task AddAsync(FavoriteContent favoriteContent)
     {
-        await _context.AddAsync(content);
+        await _context.FavoriteContents.AddAsync(favoriteContent);
     }
 
-    public async Task Delete(int id)
+    public void Delete(FavoriteContent favoriteContent)
     {
-        var content = await _context.FavoriteContents.FirstOrDefaultAsync(i=> i.Id == id);
-
-        _context.FavoriteContents.Remove(content);
+        _context.FavoriteContents.Remove(favoriteContent);
     }
 
-    public async Task<FavoriteContent> GetById(int id)
+
+    public void Update(FavoriteContent favoriteContent)
     {
-        var content = await _context.FavoriteContents.FirstOrDefaultAsync(i => i.Id == id);
-        return content;
+        _context.FavoriteContents.Update(favoriteContent);
     }
 
-    public void Update(FavoriteContent content)
+    public async Task<FavoriteContent?> GetByIdAsync(int id)
     {
-        _context.FavoriteContents.Update(content);
+        return await _context.FavoriteContents.FindAsync(id);
     }
+
     public async Task<FavoriteContent?> GetByUserAndContentAsync(int userId, int contentId)
     {
         return await _context.FavoriteContents
             .FirstOrDefaultAsync(fc => fc.UserId == userId && fc.ContentId == contentId);
     }
 
-    public async Task<IEnumerable<FavoriteContent>> GetAllAsync()
+    public async Task<bool> AnyAsync(int userId, int contentId)
     {
         return await _context.FavoriteContents
-            .Include(fc => fc.Content) // opcional, se quiser dados do conteúdo
+            .AnyAsync(fc => fc.UserId == userId && fc.ContentId == contentId);
+    }
+    public async Task<IEnumerable<Content>> GetFavoritesByUserAsync(int userId)
+    {
+        return await _context.FavoriteContents
+            .Where(fc => fc.UserId == userId)
+            .Include(fc => fc.Content)
+            .Select(fc => fc.Content)
             .ToListAsync();
     }
 }

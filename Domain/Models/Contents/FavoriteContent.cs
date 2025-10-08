@@ -14,6 +14,4 @@ public class FavoriteContent
 
     public int ContentId { get; set; }
     public Content Content { get; set; }
-
-    public bool AlreadySeen { get; set; } = false;
 }

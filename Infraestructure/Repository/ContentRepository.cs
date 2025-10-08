@@ -88,5 +88,12 @@ namespace Infraestructure.Repository
 
             return content;
         }
+        public async Task<IEnumerable<Content>> GetFavoritedAndSeenByUserAsync(int userId)
+        {
+            return await _dataContext.Contents
+                .Where(c => c.FavoritedByUsers.Any(f => f.UserId == userId) &&
+                            c.SeenInLists.Any(s => s.UserId == userId))
+                .ToListAsync();
+        }
     }
 }

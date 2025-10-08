@@ -64,6 +64,9 @@ namespace Infraestructure.Repository
             var user = await _context
                          .Users
                          .Include(u => u.FavoriteContents)
+                            .ThenInclude(fc => fc.Content)
+                         .Include(u => u.AlreadySeenContents)
+                            .ThenInclude(asc => asc.Content)
                          .Include(i => i.Preference)
                             .ThenInclude(i => i.Genres)
                          .Include(i => i.Preference)
@@ -83,18 +86,21 @@ namespace Infraestructure.Repository
         {
             var user = await _context
                                 .Users
-                                .Include(u => u.FavoriteContents)
-                                .Include(i => i.Preference)
-                                   .ThenInclude(i => i.Genres)
-                                .Include(i => i.Preference)
-                                   .ThenInclude(i => i.Casts)
-                                .Include(i => i.Preference)
-                                   .ThenInclude(i => i.Crews)
-                                .Include(i => i.Preference)
-                                   .ThenInclude(i => i.Streamings)
-                                .Include(i => i.ContentLists)
-                                   .ThenInclude(i => i.Contents)
-                                .FirstOrDefaultAsync(u => u.Email == email) ??
+                                 .Include(u => u.FavoriteContents)
+                                    .ThenInclude(fc => fc.Content)
+                                 .Include(u => u.AlreadySeenContents)
+                                    .ThenInclude(asc => asc.Content)
+                                 .Include(i => i.Preference)
+                                    .ThenInclude(i => i.Genres)
+                                 .Include(i => i.Preference)
+                                    .ThenInclude(i => i.Casts)
+                                 .Include(i => i.Preference)
+                                    .ThenInclude(i => i.Crews)
+                                 .Include(i => i.Preference)
+                                    .ThenInclude(i => i.Streamings)
+                                 .Include(i => i.ContentLists)
+                                    .ThenInclude(i => i.Contents)
+                                 .FirstOrDefaultAsync(u => u.Email == email) ??
                                 throw new ArgumentNullException();
             return user;
         }
@@ -102,18 +108,21 @@ namespace Infraestructure.Repository
         public async Task<IEnumerable<User>> GetAll()
         {
             var users = await _context.Users
-                .Include(u => u.Preference)
-                    .ThenInclude(p => p.Casts)
-                .Include(u => u.Preference)
-                    .ThenInclude(p => p.Crews)
-                .Include(u => u.Preference)
-                    .ThenInclude(p => p.Genres)
-                .Include(u => u.Preference)
-                    .ThenInclude(p => p.Streamings)
-                .Include(u => u.FavoriteContents)
-                .Include(u => u.ContentLists)
-                    .ThenInclude(u => u.Contents)
-                .ToListAsync();
+                                        .Include(u => u.FavoriteContents)
+                                            .ThenInclude(fc => fc.Content)
+                                        .Include(u => u.AlreadySeenContents)
+                                            .ThenInclude(asc => asc.Content)
+                                        .Include(i => i.Preference)
+                                            .ThenInclude(i => i.Genres)
+                                        .Include(i => i.Preference)
+                                            .ThenInclude(i => i.Casts)
+                                        .Include(i => i.Preference)
+                                            .ThenInclude(i => i.Crews)
+                                        .Include(i => i.Preference)
+                                            .ThenInclude(i => i.Streamings)
+                                        .Include(i => i.ContentLists)
+                                            .ThenInclude(i => i.Contents)
+                                        .ToListAsync();
 
             return users;
         }

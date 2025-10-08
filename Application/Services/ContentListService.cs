@@ -5,155 +5,125 @@ using Domain.Interface.Repository;
 using Domain.Models.Contents;
 using ReelfyAPI.Models;
 
-
 namespace Application.Services;
 
 public class ContentListService : IContentListService
 {
-    private readonly IContentMapper _contentMapper;
-    private readonly IContentRepository _contentRepository;
-    private readonly IContentsListRepository _context;
-    private readonly IUserRepository _userRepository;
-    private readonly IContextUser _contextUser;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IContextUser _contextUser;
 
-    public ContentListService(IContentRepository contentRepository, IContentMapper contentMapper, IContentsListRepository context, IUserRepository userRepository, IContextUser contextUser, IUnitOfWork unitOfWork)
+    // Injeções foram limpas para seguir o padrão da Unit of Work
+    public ContentListService(IUnitOfWork unitOfWork, IContextUser contextUser)
     {
-        _contentRepository = contentRepository;
-        _contentMapper = contentMapper;
-        _context = context;
-        _userRepository = userRepository;
-        _contextUser = contextUser;
         _unitOfWork = unitOfWork;
+        _contextUser = contextUser;
     }
 
-    public async Task<Response<ContentsListResponseDTO>> ListCreate(ContentListCreateDTO dto)
+    public async Task<Response<ListDetailsDTO>> CreateListAsync(CreateContentListRequestDTO dto)
     {
-        var user = await _userRepository.GetById(_contextUser.Id);
-        if (user == null) return new Response<ContentsListResponseDTO>(null, "Usuário não autorizado. Por favor, faça login novamente ou tente novamente mais tarde.", 401);
+        var userId = _contextUser.Id;
 
-        if (user.ContentLists.Any(i => i.Name == dto.name)) return new Response<ContentsListResponseDTO>(null, "Já existe uma lista com este nome", 409);
+        var listExists = await _unitOfWork.ContentsList.AnyAsync(l => l.UserId == userId && l.Name == dto.Name);
+        if (listExists)
+            return new Response<ListDetailsDTO>(null, "Já existe uma lista com este nome.", 409);
 
-        var contentInListEntity = new ContentsList
+        var newList = new ContentsList
         {
-            UserId = user.Id,
-            Name = dto.name,
-            Description = dto.description
+            UserId = userId,
+            Name = dto.Name,
+            Description = dto.Description
         };
 
-        await _context.Add(contentInListEntity);
+        await _unitOfWork.ContentsList.AddAsync(newList);
         await _unitOfWork.CommitAsync();
 
-        var response = new ContentsListResponseDTO(contentInListEntity.UserId, contentInListEntity.Id, null);
-
-        return new Response<ContentsListResponseDTO>(response, $"Lista {contentInListEntity.Name} criada com sucesso", 201);
+        var responseDto = new ListDetailsDTO(newList.Id, newList.Name, newList.Description, new List<ContentSummaryDTO>());
+        return new Response<ListDetailsDTO>(responseDto, $"Lista '{newList.Name}' criada com sucesso.", 201);
     }
 
-    public async Task<Response<ContentsListResponseDTO>> AddContentToList(int contentId, int listId)
+    public async Task<Response<ListDetailsDTO>> AddContentToListAsync(int listId, int contentId)
     {
-        var user = await _userRepository.GetById(_contextUser.Id);
+        var userId = _contextUser.Id;
+        var contentList = await _unitOfWork.ContentsList.GetByIdAsync(listId);
 
-        if (user == null) return new Response<ContentsListResponseDTO>(null, "Usuário não autorizado. Por favor, faça login novamente ou tente novamente mais tarde.", 401);
+        if (contentList == null || contentList.UserId != userId)
+            return new Response<ListDetailsDTO>(null, "Lista não encontrada ou não pertence a este usuário.", 404);
 
-        var content = await _contentRepository.Find(contentId);
-
+        var content = await _unitOfWork.Content.Find(contentId);
         if (content == null)
         {
-            content = new Content
-            {
-                Id = contentId,
-            };
-
-            await _contentRepository.Add(content);
-            await _unitOfWork.CommitAsync();
+            content = new Content { Id = contentId };
+            await _unitOfWork.Content.Add(content);
         }
-        var contentList = await _context.GetById(listId);
 
-        if (!user.ContentLists.Any(i => i.Id == contentList.Id)) return new Response<ContentsListResponseDTO>(null, "Essa lista não existe. Por favor, crie uma lista válida para adicionar os conteúdos.", 401);
-
-        if (contentList.Contents.Any(i => i.Id == content.Id)) return new Response<ContentsListResponseDTO>(null, $"{content.Title} já existe nesta lista.", 409);
+        if (contentList.Contents.Any(c => c.Id == contentId))
+            return new Response<ListDetailsDTO>(null, "Este conteúdo já existe na lista.", 409);
 
         contentList.Contents.Add(content);
         await _unitOfWork.CommitAsync();
 
-        var response = new ContentsListResponseDTO(contentList.UserId, contentList.Id, contentList.Contents.Select(_contentMapper.ToDTO));
+        var dtos = contentList.Contents.Select(c => new ContentSummaryDTO(c.Id, c.Title, c.ImageUrl));
+        var responseDto = new ListDetailsDTO(contentList.Id, contentList.Name, contentList.Description, dtos);
 
-        return new Response<ContentsListResponseDTO>(response, "Conteúdo adicionado com sucesso", 200);
-
+        return new Response<ListDetailsDTO>(responseDto, "Conteúdo adicionado com sucesso.", 200);
     }
-    public async Task<Response<ContentsListResponseDTO>> RemoveContentoFromList(int contentId, int listId)
+
+    public async Task<Response<ListDetailsDTO>> RemoveContentFromListAsync(int listId, int contentId)
     {
-        var user = await _userRepository.GetById(_contextUser.Id);
+        var userId = _contextUser.Id;
+        var contentList = await _unitOfWork.ContentsList.GetByIdAsync(listId);
 
-        if (user == null) return new Response<ContentsListResponseDTO>(null, "Usuário não autorizado. Por favor, faça login novamente ou tente novamente mais tarde.", 401);
+        if (contentList == null || contentList.UserId != userId)
+            return new Response<ListDetailsDTO>(null, "Lista não encontrada ou não pertence a este usuário.", 404);
 
-        var contentList = await _context.GetById(listId);
-
-        if (contentList == null || contentList.UserId != user.Id) return new Response<ContentsListResponseDTO>(null, "Erro ao buscar lista. Por favor, crie uma nova lista e tente novamente.", 401);
-        if (!contentList.Contents.Any(i => i.Id == contentId)) return new Response<ContentsListResponseDTO>(null, "Esse conteúdo não existe nesta lista.", 404);
-
-        var contentToRemove = contentList.Contents.FirstOrDefault(i => i.Id == contentId);
+        var contentToRemove = contentList.Contents.FirstOrDefault(c => c.Id == contentId);
+        if (contentToRemove == null)
+            return new Response<ListDetailsDTO>(null, "Esse conteúdo não existe nesta lista.", 404);
 
         contentList.Contents.Remove(contentToRemove);
         await _unitOfWork.CommitAsync();
 
-        var response = new ContentsListResponseDTO(contentList.UserId, contentList.Id, contentList.Contents.Select(_contentMapper.ToDTO));
+        var dtos = contentList.Contents.Select(c => new ContentSummaryDTO(c.Id, c.Title, c.ImageUrl));
+        var responseDto = new ListDetailsDTO(contentList.Id, contentList.Name, contentList.Description, dtos);
 
-        return new Response<ContentsListResponseDTO>(response, "Conteúdo removido com sucesso", 200);
+        return new Response<ListDetailsDTO>(responseDto, "Conteúdo removido com sucesso.", 200);
     }
 
-    public async Task<Response<ContentsListResponseDTO>> DeleteContentList(int id)
+    public async Task<Response<bool>> DeleteListAsync(int listId)
     {
-        var user = await _userRepository.GetById(_contextUser.Id);
+        var userId = _contextUser.Id;
+        var contentList = await _unitOfWork.ContentsList.GetByIdAsync(listId);
 
-        if (user == null) return new Response<ContentsListResponseDTO>(null, "Usuário não autorizado. Por favor, faça login novamente ou tente novamente mais tarde.", 401);
+        if (contentList == null || contentList.UserId != userId)
+            return new Response<bool>(false, "Lista não encontrada ou não pertence a este usuário.", 404);
 
-        var contentList = await _context.GetById(id);
-
-        if (contentList == null || contentList.UserId != user.Id) return new Response<ContentsListResponseDTO>(null, "Erro ao buscar lista. Por favor, crie uma nova lista e tente novamente.", 401);
-        await _context.Delete(id);
+        _unitOfWork.ContentsList.Delete(contentList);
         await _unitOfWork.CommitAsync();
 
-        return new Response<ContentsListResponseDTO>(null, $"{contentList.Name} deletada com sucesso.", 200);
+        return new Response<bool>(true, $"Lista '{contentList.Name}' deletada com sucesso.", 200);
     }
-    public async Task<Response<ContentFromListDTO>> GetContentFromList(int listId, int contentId)
+
+    public async Task<Response<IEnumerable<ListSummaryDTO>>> GetListsAsync()
     {
-        var contentList = await _context.GetById(listId);
-        if (_contextUser.Id != contentList.UserId) return new Response<ContentFromListDTO>(null, "Erro ao buscar lista do usuário. Faça login novamente.", 401);
+        var userId = _contextUser.Id;
+        var lists = await _unitOfWork.ContentsList.GetListsByUserAsync(userId);
 
-        var contentFromList = contentList.Contents.FirstOrDefault(i => i.Id == contentId);
+        var dtos = lists.Select(l => new ListSummaryDTO(l.Id, l.Name, l.Contents.Count));
 
-        if (contentFromList is null) return new Response<ContentFromListDTO>(null, "Conteúdo não encontrado.", 409);
-
-        var response = new ContentFromListDTO(contentList.UserId, contentList.Id, _contentMapper.ToDTO(contentFromList));
-
-        return new Response<ContentFromListDTO>(response, "Conteúdo encontrado com sucesso", 200);
-
+        return new Response<IEnumerable<ListSummaryDTO>>(dtos, "Listas do usuário recuperadas com sucesso.", 200);
     }
-    public async Task<Response<ContentsListResponseDTO>> GetAllContentsFromList(int listId)
+
+    public async Task<Response<ListDetailsDTO>> GetListDetailsAsync(int listId)
     {
-        var contentList = await _context.GetById(listId);
-        if (_contextUser.Id != contentList.UserId) return new Response<ContentsListResponseDTO>(null, "Erro ao buscar lista do usuário. Faça login novamente.", 401);
+        var userId = _contextUser.Id;
+        var contentList = await _unitOfWork.ContentsList.GetByIdAsync(listId);
 
-        var response = new ContentsListResponseDTO(contentList.UserId, contentList.Id, contentList.Contents.Select(_contentMapper.ToDTO));
+        if (contentList == null || contentList.UserId != userId)
+            return new Response<ListDetailsDTO>(null, "Lista não encontrada ou não pertence a este usuário.", 404);
 
-        return new Response<ContentsListResponseDTO>(response, "Lista de conteúdo encontrada com sucesso.", 200);
-    }
-    public async Task<Response<ContentListEnumerableDTO>> GetAllLists()
-    {
-        var user = await _userRepository.GetById(_contextUser.Id);
+        var contentDtos = contentList.Contents.Select(c => new ContentSummaryDTO(c.Id, c.Title, c.ImageUrl));
+        var responseDto = new ListDetailsDTO(contentList.Id, contentList.Name, contentList.Description, contentDtos);
 
-        if (user == null) return new Response<ContentListEnumerableDTO>(null, "Usuário não autorizado. Por favor, faça login novamente ou tente novamente mais tarde.", 401);
-
-        var listDTO = new List<ListDTO>();
-
-        foreach (var index in user.ContentLists)
-        {
-            listDTO.Add(new ListDTO(index.Id, index.Name, index.Description, index.Contents.Select(_contentMapper.ToDTO)));
-        }
-
-        var response = new ContentListEnumerableDTO(user.Id, listDTO);
-
-        return new Response<ContentListEnumerableDTO>(response, "Lista retornada com sucesso", 200);
+        return new Response<ListDetailsDTO>(responseDto, "Detalhes da lista recuperados com sucesso.", 200);
     }
 }

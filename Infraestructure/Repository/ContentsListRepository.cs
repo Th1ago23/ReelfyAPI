@@ -2,7 +2,7 @@
 using Domain.Models.Contents;
 using Microsoft.EntityFrameworkCore;
 using ReelfyAPI.Data;
-
+using System.Linq.Expressions;
 
 namespace Infrastructure.Repository;
 
@@ -15,24 +15,33 @@ public class ContentsListRepository : IContentsListRepository
         _context = context;
     }
 
-    private IQueryable<ContentsList> Find()
+    public async Task AddAsync(ContentsList contentList)
     {
-        return _context.ContentsLists.AsQueryable();
+        await _context.ContentsLists.AddAsync(contentList);
     }
-    public async Task Add(ContentsList Contents)
+
+    public void Delete(ContentsList contentList)
     {
-        await _context.AddAsync(Contents);
+        _context.ContentsLists.Remove(contentList);
     }
-    public async Task Delete(int id)
+
+    public async Task<ContentsList?> GetByIdAsync(int id)
     {
-        var contents = await _context.ContentsLists.FirstOrDefaultAsync(i => i.Id == id);
-        _context.ContentsLists.Remove(contents);
+        return await _context.ContentsLists
+            .Include(l => l.Contents)
+            .FirstOrDefaultAsync(l => l.Id == id);
     }
-    public async Task<ContentsList> GetById(int id)
+
+    public async Task<IEnumerable<ContentsList>> GetListsByUserAsync(int userId)
     {
-        return await Find()
-                        .Include(i => i.Contents)
-                            .ThenInclude(i => i.InUserContentLists)
-                        .FirstOrDefaultAsync(i => i.Id == id);
+        return await _context.ContentsLists
+            .Include(l => l.Contents)
+            .Where(l => l.UserId == userId)
+            .ToListAsync();
+    }
+
+    public async Task<bool> AnyAsync(Expression<Func<ContentsList, bool>> predicate)
+    {
+        return await _context.ContentsLists.AnyAsync(predicate);
     }
 }

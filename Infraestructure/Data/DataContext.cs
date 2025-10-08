@@ -18,6 +18,7 @@ namespace ReelfyAPI.Data
         public DbSet<Genre> Genres { get; set; }
         public DbSet<ContentsList> ContentsLists { get; set; }
         public DbSet<FavoriteContent> FavoriteContents { get; set; }
+        public DbSet<AlreadySeenContent> AlreadySeenContents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -66,6 +67,19 @@ namespace ReelfyAPI.Data
                 .HasOne(fc => fc.Content)
                 .WithMany(c => c.FavoritedByUsers)
                 .HasForeignKey(fc => fc.ContentId);
+
+            modelBuilder.Entity<AlreadySeenContent>()
+                .HasKey(asc => asc.Id);
+
+            modelBuilder.Entity<AlreadySeenContent>()
+                .HasOne(asc => asc.User)
+                .WithMany(u => u.AlreadySeenContents)
+                .HasForeignKey(asc => asc.UserId);
+
+            modelBuilder.Entity<AlreadySeenContent>()
+                .HasOne(asc => asc.Content)
+                .WithMany(c => c.SeenInLists)
+                .HasForeignKey(asc => asc.ContentId);
         }
     }
 }

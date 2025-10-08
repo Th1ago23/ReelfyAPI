@@ -32,7 +32,7 @@ public class User
     public ICollection<FavoriteContent> FavoriteContents { get; set; } = new List<FavoriteContent>();
     public ICollection<ContentsList> ContentLists { get; set; } = new List<ContentsList>();
     public Preference Preference { get; set; } = new Preference();
-
+    public ICollection<AlreadySeenContent> AlreadySeenContents { get; set; } = new List<AlreadySeenContent>();
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 

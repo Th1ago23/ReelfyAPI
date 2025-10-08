@@ -1,4 +1,5 @@
 ﻿using Application.DTO.Users;
+using Application.Interface.UtilsInterface;
 using Domain.Models.Users;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -7,7 +8,7 @@ using System.Security.Claims;
 
 namespace Application.Services
 {
-    public class JwtService
+    public class JwtService:IJwtService
     {
         private readonly IConfiguration _configuration;
 

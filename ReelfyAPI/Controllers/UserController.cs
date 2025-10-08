@@ -20,15 +20,6 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetAllUsers()
     {
         var serviceResponse = await _userServices.GetAllUsers();
-
-        return StatusCode(serviceResponse.StatusCode, serviceResponse);
-    }
-
-    [HttpDelete("DeleteUser/{id:int}")]
-    public async Task<IActionResult> DeleteUser(int id)
-    {
-        var serviceResponse = await _userServices.DeleteUser(id);
-
         return StatusCode(serviceResponse.StatusCode, serviceResponse);
     }
 
@@ -36,33 +27,27 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetUserById(int id)
     {
         var serviceResponse = await _userServices.GetUserById(id);
-
         return StatusCode(serviceResponse.StatusCode, serviceResponse);
     }
 
-    [Authorize]
     [HttpPut("UpdateUser")]
-    public async Task<IActionResult> UpdateUser(UpdateUserDTO request)
+    public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDTO request)
     {
         var serviceResponse = await _userServices.UpdateUser(request);
-
         return StatusCode(serviceResponse.StatusCode, serviceResponse);
     }
 
-    [HttpPut("MarkPreemium/{userId}/{isPreemium}")]
-    public async Task<IActionResult> MarkPreemium(int userId, bool isPreemium)
+    [HttpDelete("DeleteUser/{id:int}")]
+    public async Task<IActionResult> DeleteUser(int id)
     {
-        var serviceResponse = await _userServices.TurnPreemium(userId, isPreemium);
-
+        var serviceResponse = await _userServices.DeleteUser(id);
         return StatusCode(serviceResponse.StatusCode, serviceResponse);
     }
 
-    [Authorize]
-    [HttpGet("ContentsAlreadySeen")]
-    public async Task<IActionResult> ContentsAlreadySeen()
+    [HttpPut("MarkPremium/{userId}/{isPremium}")] 
+    public async Task<IActionResult> MarkPremium(int userId, bool isPremium)
     {
-        var serviceResponse = await _userServices.ContentsAlreadySeens();
-
+        var serviceResponse = await _userServices.TurnPremium(userId, isPremium);
         return StatusCode(serviceResponse.StatusCode, serviceResponse);
     }
 }

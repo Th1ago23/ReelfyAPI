@@ -5,11 +5,10 @@ namespace Application.Interface.ContentInterface;
 
 public interface IContentListService
 {
-    public Task<Response<ContentsListResponseDTO>> ListCreate(ContentListCreateDTO dto);
-    public Task<Response<ContentsListResponseDTO>> AddContentToList(int contentId, int listId);
-    public Task<Response<ContentsListResponseDTO>> RemoveContentoFromList(int contentId, int listId);
-    public Task<Response<ContentsListResponseDTO>> DeleteContentList(int id);
-    public Task<Response<ContentsListResponseDTO>> GetAllContentsFromList(int listId);
-    public Task<Response<ContentFromListDTO>> GetContentFromList(int listId, int contentId);
-    public Task<Response<ContentListEnumerableDTO>> GetAllLists();
+    Task<Response<ListDetailsDTO>> CreateListAsync(CreateContentListRequestDTO dto);
+    Task<Response<bool>> DeleteListAsync(int listId);
+    Task<Response<ListDetailsDTO>> AddContentToListAsync(int listId, int contentId);
+    Task<Response<ListDetailsDTO>> RemoveContentFromListAsync(int listId, int contentId);
+    Task<Response<IEnumerable<ListSummaryDTO>>> GetListsAsync();
+    Task<Response<ListDetailsDTO>> GetListDetailsAsync(int listId);
 }

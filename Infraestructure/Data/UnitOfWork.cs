@@ -1,5 +1,6 @@
 ﻿using Domain.Interface.Repository;
 using Infraestructure.Repository;
+using Infrastructure.Repository;
 using ReelfyAPI.Data;
 
 namespace Infraestructure.Data;
@@ -15,7 +16,9 @@ public class UnitOfWork : IUnitOfWork
     public IContentRepository Content { get; }
     public IStreamingRepository Streaming { get; }
     public IUserRepository User { get; }
-
+    public IFavoriteContentRepository FavoriteContent { get; }
+    public IAlreadySeenContentRepository AlreadySeenContent { get; }
+    public IContentsListRepository ContentsList { get; }
     public UnitOfWork(DataContext context)
     {
         _context = context;
@@ -26,7 +29,9 @@ public class UnitOfWork : IUnitOfWork
         Content = new ContentRepository(_context);
         Streaming = new StreamingRepository(_context);
         User = new UserRepository(_context);
-
+        AlreadySeenContent = new AlreadySeenContentRepository(_context);
+        FavoriteContent = new FavoriteContentRepository(_context);
+        ContentsList = new ContentsListRepository(_context);
     }
     public async Task<int> CommitAsync()
     {

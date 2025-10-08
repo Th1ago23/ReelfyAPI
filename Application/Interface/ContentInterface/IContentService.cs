@@ -5,10 +5,13 @@ namespace Application.Interface.ContentInterface
 {
     public interface IContentService
     {
-        Task<Response<FavoriteContentDTO>> Favorite(FavoriteContentDTO movie);
-        Task<Response<FavoriteContentDTO>> MarkAlreadySeen(int id, bool result);
-        Task<Response<bool>> Unfavorite(int id);
-        Task<Response<IEnumerable<FavoriteCountDTO>>> CountContents();
-
+        Task<Response<bool>> FavoriteAsync(int contentId);
+        Task<Response<bool>> UnfavoriteAsync(int contentId);
+        Task<Response<bool>> SetSeenStatusAsync(int contentId, bool hasSeen);
+        Task<Response<ContentDetailsDTO>> GetContentDetailsAsync(int contentId);
+        Task<Response<IEnumerable<ContentSummaryDTO>>> GetFavoritesAsync();
+        Task<Response<IEnumerable<ContentSummaryDTO>>> GetSeenAsync();
+        Task<Response<IEnumerable<ContentSummaryDTO>>> GetFavoritedAndSeenAsync();
     }
 }
+
