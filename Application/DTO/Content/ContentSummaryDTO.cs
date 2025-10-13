@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace Application.DTO.Content
 {
-    public record ContentSummaryDTO(int Id, string? Title, string? ImageUrl);
+    public record ContentSummaryDTO(int ContentId,string ContentType);
 }

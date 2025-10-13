@@ -48,5 +48,18 @@ namespace Infrastructure.Repository
                 .Select(asc => asc.Content)
                 .ToListAsync();
         }
+        public async Task<bool> IsAlreadySeen(int userId, int contentId)
+        {
+            return await _context.AlreadySeenContents
+                .AnyAsync(i => i.UserId == userId && i.ContentId == contentId);
+        }
+        public async Task<HashSet<int>> GetSeenContentIdsByUserAsync(int userId, IEnumerable<int> contentIds)
+        {
+            return await _context.AlreadySeenContents
+                .Where(asc => asc.UserId == userId && contentIds.Contains(asc.ContentId))
+                .Select(asc => asc.ContentId)
+                .ToHashSetAsync();
+        }
+
     }
 }

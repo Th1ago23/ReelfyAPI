@@ -7,6 +7,7 @@ using System.Data.Common;
 
 namespace Infraestructure.Repository
 {
+
     public class ContentRepository : IContentRepository
     {
         private readonly DataContext _dataContext;
@@ -82,18 +83,13 @@ namespace Infraestructure.Repository
             return contents;
         }
 
-        public async Task<Content> FindByName(string title)
-        {
-            var content = await _dataContext.Contents.FirstOrDefaultAsync(m => m.Title == title);
 
-            return content;
-        }
-        public async Task<IEnumerable<Content>> GetFavoritedAndSeenByUserAsync(int userId)
+        public async Task<IEnumerable<Content>> GetFavoritedByUserAsync(int userId)
         {
             return await _dataContext.Contents
-                .Where(c => c.FavoritedByUsers.Any(f => f.UserId == userId) &&
-                            c.SeenInLists.Any(s => s.UserId == userId))
+                .Where(c => c.FavoritedByUsers.Any(f => f.UserId == userId))
                 .ToListAsync();
         }
+
     }
 }

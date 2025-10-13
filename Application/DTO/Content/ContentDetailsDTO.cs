@@ -7,4 +7,4 @@ using System.Threading.Tasks;
 
 namespace Application.DTO.Content;
 
-public record ContentDetailsDTO(int Id,UserStatusDTO UserStatus);
+public record ContentDetailsDTO(int Id,string ContentType ,UserStatusDTO UserStatus);

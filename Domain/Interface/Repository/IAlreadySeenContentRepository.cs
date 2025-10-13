@@ -14,5 +14,7 @@ namespace Domain.Interface.Repository
         Task<AlreadySeenContent?> GetByUserAndContentAsync(int userId, int contentId);
         Task<bool> AnyAsync(int userId, int contentId);
         Task<IEnumerable<Content>> GetSeenByUserAsync(int userId);
+        Task<bool> IsAlreadySeen(int userId, int contentId);
+        Task<HashSet<int>> GetSeenContentIdsByUserAsync(int userId, IEnumerable<int> contentIds);
     }
 }

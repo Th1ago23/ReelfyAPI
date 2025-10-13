@@ -54,4 +54,16 @@ public class FavoriteContentRepository : IFavoriteContentRepository
             .Select(fc => fc.Content)
             .ToListAsync();
     }
+    public async Task<bool> IsFavorited(int userId, int contentId)
+    {
+        return await _context.FavoriteContents
+            .AnyAsync(i => i.UserId == userId && i.ContentId == contentId);
+    }
+    public async Task<HashSet<int>> GetFavoritedContentIdsByUserAsync(int userId, IEnumerable<int> contentIds)
+    {
+        return await _context.FavoriteContents
+            .Where(fc => fc.UserId == userId && contentIds.Contains(fc.ContentId))
+            .Select(fc => fc.ContentId)
+            .ToHashSetAsync();
+    }
 }

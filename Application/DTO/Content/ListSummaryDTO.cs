@@ -1,10 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Application.DTO.Content;
 
-namespace Application.DTO.Content
-{
-    public record ListSummaryDTO(int Id, string Name, int ContentCount);
-}
+public record ListSummaryDTO(int ListId, string Name, string? Description, IEnumerable<ContentDTO> Contents);

@@ -31,6 +31,13 @@ public class ContentsListRepository : IContentsListRepository
             .Include(l => l.Contents)
             .FirstOrDefaultAsync(l => l.Id == id);
     }
+    public async Task<ContentsList?> GetByIdAndUserIdAsync(int listId, int userId)
+    {
+        return await _context.ContentsLists
+            .Where(i=> i.UserId == userId)
+            .Include(l => l.Contents)
+            .FirstOrDefaultAsync(l => l.Id == listId);
+    }
 
     public async Task<IEnumerable<ContentsList>> GetListsByUserAsync(int userId)
     {

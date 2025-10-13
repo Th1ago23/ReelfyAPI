@@ -2,6 +2,7 @@
 using Application.DTO.Returns;
 using Application.DTO.Users;
 using Application.Interface.UserInterface;
+using Application.Interface.UtilsInterface;
 using Application.Services;
 using Domain.Interface.Repository;
 using ReelfyAPI.Models;
@@ -12,9 +13,9 @@ namespace ReelfyAPI.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserRepository _context;
         private readonly IUserMapper _mapper;
-        private readonly JwtService _jwtService;
+        private readonly IJwtService _jwtService;
 
-        public AuthService(IUnitOfWork unitOfWork, IUserRepository context, IUserMapper mapper, JwtService jwtService)
+        public AuthService(IUnitOfWork unitOfWork, IUserRepository context, IUserMapper mapper, IJwtService jwtService)
         {
             _unitOfWork = unitOfWork;
             _context = context;
@@ -79,7 +80,7 @@ namespace ReelfyAPI.Services
         }
 
 
-        public async Task<Response<UserResponseAuthDTO>> UpdatePassword(UpdatePasswordDTO updateDTO, string newPassword)
+        public async Task<Response<UserResponseAuthDTO>> UpdatePassword(UpdatePasswordDTO updateDTO)
         {
             var user = await _context.GetByEmail(updateDTO.Email);
 
@@ -98,7 +99,7 @@ namespace ReelfyAPI.Services
                 return new Response<UserResponseAuthDTO>(null, "Não foi possível alterar a senha. As senhas não podem ser nulas ou vazias.", 400);
             }
 
-            _jwtService.CreatePasswordHash(newPassword, out byte[] passwordHash, out byte[] passwordSalt);
+            _jwtService.CreatePasswordHash(updateDTO.NewPassword, out byte[] passwordHash, out byte[] passwordSalt);
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 

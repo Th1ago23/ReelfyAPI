@@ -48,17 +48,9 @@ public class ContentListController : ControllerBase
     [HttpGet("GetContentFromList/{listId}/{contentId}")]
     public async Task<IActionResult> GetContentFromList(int listId, int contentId)
     {
-        var listResponse = await _service.GetListDetailsAsync(listId);
+        var listResponse = await _service.GetContentFromList(listId, contentId);
+        return StatusCode(listResponse.StatusCode, listResponse);
 
-        if (listResponse.StatusCode != 200 || listResponse.Data == null)
-            return StatusCode(listResponse.StatusCode, listResponse);
-
-        var content = listResponse.Data.Contents.FirstOrDefault(c => c.Id == contentId);
-
-        if (content == null)
-            return NotFound(new { Message = "Conteúdo não encontrado nesta lista." });
-
-        return Ok(new { Message = "Conteúdo encontrado com sucesso", Data = content });
     }
 
     [HttpGet("GetAllContentsFromList/{listId}")]

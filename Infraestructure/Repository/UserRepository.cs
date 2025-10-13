@@ -18,8 +18,7 @@ namespace Infraestructure.Repository
         {
             var user = await GetById(userId);
 
-            var movie = user.FavoriteContents.FirstOrDefault(u => u.Id == ContentId) ?? throw new NullReferenceException("Não foi encontrado nenhum conteúdo com este Id.");
-
+            var movie = user.FavoriteContents.FirstOrDefault(u => u.Id == ContentId);
             user.FavoriteContents.Remove(movie);
 
             return true;
@@ -29,34 +28,14 @@ namespace Infraestructure.Repository
             var user = await _context
              .Users
              .Include(u => u.FavoriteContents)
-             .FirstOrDefaultAsync(u => u.Id == id)
-             ?? throw new ArgumentNullException();
+             .FirstOrDefaultAsync(u => u.Id == id);
 
             return user;
         }
         public async Task<User> Add(User user)
         {
-            try
-            {
-                if (user == null)
-                {
-                    throw new ArgumentNullException();
-
-                }
-                else if (await UserExists(user.Email))
-                {
-                    throw new InvalidOperationException($"Email {user.Email} já cadastrado.");
-                }
-
                 await _context.Users.AddAsync(user);
-
                 return user;
-
-            }
-            catch (DbUpdateException e)
-            {
-                throw new Exception($"Erro ao registrar usuário. {e.Message}");
-            }
         }
 
         public async Task<User> GetById(int id)
@@ -100,8 +79,7 @@ namespace Infraestructure.Repository
                                     .ThenInclude(i => i.Streamings)
                                  .Include(i => i.ContentLists)
                                     .ThenInclude(i => i.Contents)
-                                 .FirstOrDefaultAsync(u => u.Email == email) ??
-                                throw new ArgumentNullException();
+                                 .FirstOrDefaultAsync(u => u.Email == email);
             return user;
         }
 

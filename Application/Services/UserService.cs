@@ -82,17 +82,17 @@ public class UserService : IUserService
         return new Response<UserResponseDTO>(responseData, "Usuário atualizado com sucesso.", 200);
     }
 
-    public async Task<Response<UserSummaryDTO>> TurnPremium(int id, bool result)
+    public async Task<Response<UserPremiumDTO>> TurnPremium(int id, bool result)
     {
         var user = await _unitOfWork.User.GetById(id);
         if (user == null)
-            return new Response<UserSummaryDTO>(null, $"Usuário não encontrado com o ID {id}.", 404);
+            return new Response<UserPremiumDTO>(null, $"Usuário não encontrado com o ID {id}.", 404);
 
         user.IsPreemium = result;
         _unitOfWork.User.Update(user);
         await _unitOfWork.CommitAsync();
 
-        var responseData = _mapper.ToSummaryDTO(user);
-        return new Response<UserSummaryDTO>(responseData, "Status de premium atualizado com sucesso.", 200);
+        var responseData = new UserPremiumDTO(user.Id, user.Email, user.IsPreemium);
+        return new Response<UserPremiumDTO>(responseData, "Status de premium atualizado com sucesso.", 200);
     }
 }

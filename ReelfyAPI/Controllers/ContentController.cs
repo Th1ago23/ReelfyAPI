@@ -19,7 +19,7 @@ public class ContentController : ControllerBase
     [HttpPost("Favorite", Name = "favorite")]
     public async Task<IActionResult> Favorite([FromBody] FavoriteRequest request)
     {
-        var response = await _contentService.FavoriteAsync(request.Id);
+        var response = await _contentService.FavoriteAsync(request.Id, request.ContentType);
         return StatusCode(response.StatusCode, response);
     }
 
@@ -35,7 +35,7 @@ public class ContentController : ControllerBase
     [HttpGet("GetFavoriteInContext")]
     public async Task<IActionResult> GetFavoriteInContext()
     {
-        var response = await _contentService.GetFavoritesAsync();
+        var response = await _contentService.GetFavoritesInContext();
         return StatusCode(response.StatusCode, response);
     }
 
@@ -62,14 +62,6 @@ public class ContentController : ControllerBase
         var response = await _contentService.GetSeenAsync();
         return StatusCode(response.StatusCode, response);
     }
-
-    [Authorize]
-    [HttpGet("favorited-and-seen")]
-    public async Task<IActionResult> GetMyFavoritedAndSeenContent()
-    {
-        var response = await _contentService.GetFavoritedAndSeenAsync();
-        return StatusCode(response.StatusCode, response);
-    }
 }
 
-public record FavoriteRequest(int Id);
+public record FavoriteRequest(int Id, string ContentType);

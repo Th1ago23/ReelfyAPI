@@ -46,11 +46,11 @@ namespace ReelfyAPI.Utils // Ou onde quer que sua implementação fique
             );
 
             var favorites = user.FavoriteContents
-                .Select(fc => new ContentSummaryDTO(fc.Content.Id, fc.Content.Title, fc.Content.ImageUrl));
+                .Select(fc => new ContentSummaryDTO(fc.Content.Id,fc.Content.ContentType));
 
             // LÓGICA ADICIONADA PARA OS CONTEÚDOS VISTOS
             var seenContents = user.AlreadySeenContents
-                .Select(asc => new ContentSummaryDTO(asc.Content.Id, asc.Content.Title, asc.Content.ImageUrl));
+                .Select(asc => new ContentSummaryDTO(asc.Content.Id, asc.Content.ContentType));
 
             return new UserSummaryDTO(
                 user.Id,

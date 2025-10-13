@@ -30,6 +30,12 @@ public class AuthController : ControllerBase
 
         return StatusCode(serviceResponse.StatusCode, serviceResponse);
     }
+    [HttpPost("UpdatePassword")]
+    public async Task<IActionResult> UpdatePassword(UpdatePasswordDTO userDetails)
+    {
+        var serviceResponse = await _authServices.UpdatePassword(userDetails);
+        return StatusCode(serviceResponse.StatusCode, serviceResponse);
+    }
 
     [HttpGet("/health")]
     public IActionResult HealthCheck() => Ok("API tá viva!");

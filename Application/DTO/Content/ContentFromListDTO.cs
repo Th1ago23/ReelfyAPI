@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace Application.DTO.Content
 {
-    public record AddContentToListRequestDTO(int ContentId, string ContentType);
+    public record ContentFromListDTO(int UserId, int ListId, ContentDTO Content);
 }

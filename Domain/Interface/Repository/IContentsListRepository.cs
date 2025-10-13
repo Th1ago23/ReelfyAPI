@@ -10,4 +10,5 @@ public interface IContentsListRepository
     Task<ContentsList?> GetByIdAsync(int id);
     Task<IEnumerable<ContentsList>> GetListsByUserAsync(int userId);
     Task<bool> AnyAsync(Expression<Func<ContentsList, bool>> predicate);
+    Task<ContentsList?> GetByIdAndUserIdAsync(int listId, int userId);
 }

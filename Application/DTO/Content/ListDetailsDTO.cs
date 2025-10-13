@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace Application.DTO.Content
 {
-    public record ListDetailsDTO(int Id, string Name, string? Description, IEnumerable<ContentSummaryDTO> Contents);
+    public record ListDetailsDTO(int ListId, string Name, string? Description, IEnumerable<ContentSummaryDTO?> Contents);
 
 }

@@ -22,32 +22,34 @@ public class ContentService : IContentService
         _cache = cache;
     }
 
-    public async Task<Response<bool>> FavoriteAsync(int contentId)
+    public async Task<Response<ContentDTO>> FavoriteAsync(int contentId, string contentType)
     {
         var userId = _userInContext.Id;
         var user = await _unitOfWork.User.GetById(userId);
         if (user == null)
-            return new Response<bool>(false, "Usuário não autenticado.", 401);
+            return new Response<ContentDTO>(null, "Usuário não autenticado.", 401);
 
         var content = await _unitOfWork.Content.Find(contentId);
 
         if (content == null)
         {
-            content = new Content { Id = contentId };
+            content = new Content { Id = contentId, ContentType = contentType };
             await _unitOfWork.Content.Add(content);
         }
 
         var alreadyFavorited = await _unitOfWork.FavoriteContent.AnyAsync(user.Id, content.Id);
         if (alreadyFavorited)
-            return new Response<bool>(false, "Este conteúdo já foi favoritado.", 409);
+            return new Response<ContentDTO>(null, "Este conteúdo já foi favoritado.", 409);
 
-        var newFavorite = new FavoriteContent { UserId = user.Id, ContentId = content.Id };
+        var newFavorite = new FavoriteContent { UserId = user.Id, ContentType = content.ContentType, ContentId = content.Id };
         await _unitOfWork.FavoriteContent.AddAsync(newFavorite);
 
         await _unitOfWork.CommitAsync();
 
+        var response = new ContentDTO(newFavorite.ContentId, content.ContentType, await _unitOfWork.AlreadySeenContent.IsAlreadySeen(userId,newFavorite.ContentId), true);
+
         _cache.Remove($"UserFavorites_{user.Id}");
-        return new Response<bool>(true, "Conteúdo favoritado com sucesso!", 201);
+        return new Response<ContentDTO>(response, "Conteúdo favoritado com sucesso!", 201);
     }
 
     public async Task<Response<bool>> UnfavoriteAsync(int contentId)
@@ -109,19 +111,42 @@ public class ContentService : IContentService
         bool hasSeen = await _unitOfWork.AlreadySeenContent.AnyAsync(userId, contentId);
 
         var userStatus = new UserStatusDTO(isFavorited, hasSeen);
-        var dto = new ContentDetailsDTO(content.Id, userStatus);
+        var dto = new ContentDetailsDTO(content.Id, content.ContentType, userStatus);
 
         return new Response<ContentDetailsDTO>(dto, "Detalhes do conteúdo recuperados com sucesso.", 200);
     }
 
-    public async Task<Response<IEnumerable<ContentSummaryDTO>>> GetFavoritesAsync()
+    public async Task<Response<ContentsHomeDTO>> GetFavoritesInContext()
     {
         var userId = _userInContext.Id;
-        var contents = await _unitOfWork.FavoriteContent.GetFavoritesByUserAsync(userId);
+        var user = await _unitOfWork.User.GetById(userId);
+        if (user == null)
+        {
+            return new Response<ContentsHomeDTO>(null, "Usuário sem permissão. Por favor, faça login novamente.", 401);
+        }
+        var favoriteContents = await _unitOfWork.FavoriteContent.GetFavoritesByUserAsync(userId);
 
-        var dtos = contents.Select(c => new ContentSummaryDTO(c.Id, c.Title, c.ImageUrl));
+        if (!favoriteContents.Any())
+        {
+            var emptyResponse = new ContentsHomeDTO(userId, user.Email, new List<ContentDTO>());
+            return new Response<ContentsHomeDTO>(emptyResponse, "Nenhum favorito encontrado.", 200);
+        }
 
-        return new Response<IEnumerable<ContentSummaryDTO>>(dtos, "Favoritos recuperados com sucesso.", 200);
+        var favoriteContentIds = favoriteContents.Select(c => c.Id).ToList();
+
+        var seenContentIds = await _unitOfWork.AlreadySeenContent.GetSeenContentIdsByUserAsync(userId, favoriteContentIds);
+
+        var contentList = favoriteContents.Select(content =>
+        {
+            bool isSeen = seenContentIds.Contains(content.Id);
+            bool isFavorited = true;
+
+            return new ContentDTO(content.Id, content.ContentType, isSeen, isFavorited);
+        });
+
+        var response = new ContentsHomeDTO(userId, user.Email, contentList);
+
+        return new Response<ContentsHomeDTO>(response, "Favoritos recuperados com sucesso.", 200);
     }
 
     public async Task<Response<IEnumerable<ContentSummaryDTO>>> GetSeenAsync()
@@ -129,18 +154,8 @@ public class ContentService : IContentService
         var userId = _userInContext.Id;
         var contents = await _unitOfWork.AlreadySeenContent.GetSeenByUserAsync(userId);
 
-        var dtos = contents.Select(c => new ContentSummaryDTO(c.Id, c.Title, c.ImageUrl));
+        var dtos = contents.Select(c => new ContentSummaryDTO(c.Id, c.ContentType));
 
         return new Response<IEnumerable<ContentSummaryDTO>>(dtos, "Conteúdos vistos recuperados com sucesso.", 200);
-    }
-
-    public async Task<Response<IEnumerable<ContentSummaryDTO>>> GetFavoritedAndSeenAsync()
-    {
-        var userId = _userInContext.Id;
-        var contents = await _unitOfWork.Content.GetFavoritedAndSeenByUserAsync(userId);
-
-        var dtos = contents.Select(c => new ContentSummaryDTO(c.Id, c.Title, c.ImageUrl));
-
-        return new Response<IEnumerable<ContentSummaryDTO>>(dtos, "Conteúdos favoritos e vistos recuperados com sucesso.", 200);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Application.DTO.Users;
 using Application.Interface.UserInterface;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ReelfyAPI.Controllers;
@@ -44,7 +43,7 @@ public class UserController : ControllerBase
         return StatusCode(serviceResponse.StatusCode, serviceResponse);
     }
 
-    [HttpPut("MarkPremium/{userId}/{isPremium}")] 
+    [HttpPut("MarkPremium/{userId}/{isPremium}")]
     public async Task<IActionResult> MarkPremium(int userId, bool isPremium)
     {
         var serviceResponse = await _userServices.TurnPremium(userId, isPremium);

@@ -10,4 +10,6 @@ public interface IFavoriteContentRepository
     Task<FavoriteContent?> GetByUserAndContentAsync(int userId, int contentId);
     Task<bool> AnyAsync(int userId, int contentId);
     Task<IEnumerable<Content>> GetFavoritesByUserAsync(int userId);
+    public Task<bool> IsFavorited(int userId, int contentId);
+    public Task<HashSet<int>> GetFavoritedContentIdsByUserAsync(int userId, IEnumerable<int> contentIds);
 }

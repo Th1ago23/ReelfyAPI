@@ -9,11 +9,9 @@ namespace Domain.Interface.Repository
         Task Delete(Content content);
         void Update(Content content);
         void Attach(Content content);
-        //Task<int> Count();
         Task<Content> Find(int id);
         Task<IEnumerable<Content>> FindAll();
-        Task<Content> FindByName(string name);
-        Task<IEnumerable<Content>> GetFavoritedAndSeenByUserAsync(int userId);
+        Task<IEnumerable<Content>> GetFavoritedByUserAsync(int userId);
 
     }
 }

@@ -12,5 +12,5 @@ public interface IUserService
     Task<Response<bool>> DeleteUser(int id);
     Task<Response<bool>> VerifyUser(string email);
     Task<Response<UserResponseDTO>> UpdateUser(UpdateUserDTO update);
-    Task<Response<UserSummaryDTO>> TurnPremium(int id, bool result);
+    Task<Response<UserPremiumDTO>> TurnPremium(int id, bool result);
 }
